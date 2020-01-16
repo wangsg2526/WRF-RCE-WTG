@@ -1,0 +1,174 @@
+This is a WRF-CRM package for studying interaciton between convection and large-scale dynamics.
+By Shuguang Wang (wangsg@gmail.com).
+
+This package support three types of cloud-resolving simulaitons using WRF in doubly-periodic
+computation domains:
+
+1. Idealized CRM simulations, especially radiative-convective equalibrium
+   with various idealization of radiation, constant sea surface tempreature
+   or simplified ocean mixed layer
+
+2. Conventional CRM runs driven by large-scale forcing derived from sounding array
+   or variational analysis (large-scael W, horizontal advection tendencies of moisture
+   and temperature, surface temperature)
+   -> use these in namelist.input (capital letters for namelist options):
+      SCM_FORCE = 1, SCM_FORCE_WAVE = F, SCM_FORCE_WTG =F, WTG_OPT = 1,
+      SCM_QV_HADV_LARGESCALE = T
+      SCM_VERT_ADV = F
+
+3. CRM runs with parameterized large-scale dynamics using temperature anomalies
+   derived from field comapign or time independent sounding
+   -> SCM_FORCE = 1, SCM_FORCE_WAVE = F, SCM_FORCE_WTG =F, SCM_vert_adv =T
+      SCM_QV_HADV_LARGESCALE = T
+
+------------------------------------------------------------------------------------------------------
+Four methods of parameterizing large-scale dynamics with time-dependent foring:
+Reference profiles are ingested in the netcdf file, and four methods are supported:
+
+1. WTG (weak tempreature gradient)
+   -> SCM_FORCE = 1, SCM_FORCE_WAVE = F, SCM_FORCE_WTG =T, WTG_OPT = 1, SCM_VERT_ADV =F
+      TAO = 1800
+
+2. DGW/WPG (damped gravity wave, or weak pressure gradient)
+   -> SCM_FORCE = 1, SCM_FORCE_WAVE = T, SCM_FORCE_WTG =F, SCM_VERT_ADV =F
+      WAVECOUPLING_DMPOPT  = 1
+      WAVENUMBER = 0.2e-5
+      WAVEDAMPING = 1.1574e-5
+
+3. SWTG (spectral WTG)
+   -> SCM_FORCE = 1, SCM_FORCE_WAVE = F, SCM_FORCE_WTG =T, WTG_OPT = 10, SCM_VERT_ADV =F
+      TAO = 1800
+
+4. Vertical mode based SWTG (recommended)
+   -> SCM_FORCE = 1, SCM_FORCE_WAVE = F, SCM_FORCE_WTG =T, WTG_OPT = 210 , SCM_VERT_ADV =F
+      WTG_NMODES = 10 or 20
+      TAO = 1800
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+Four methods of parameterizing large-scale dynamics with time-independent foring:                                                                                           
+Reference profiels are set in the namelist.input: NL_BG, THETA_BG,  QV_BG,  Z_BG,  PRS_BG
+The four methods are also supported:  RCE_WTG_FLAG = 1,2,3,4
+The namelist section is RCE_CONTROL
+
+------------------------------------------------------------------------------------------------------                                                                      
+Other added funcitons included in this package:
+ - idealized radiative cooling (-1.5K/day cooling etc) - use ra_lw_physics==31, ra_sw_physics==32
+ - moisture-conserving 3D Smag turbulent mixing
+ - prescribe solor constant (e.g., 400 W/m^2, no dirunal cycles) or Julian (with diurnal cycles)
+
+To start, first compile:
+./configure (well tested using option "Linux x86_64 i486 i586 i686, ifort compiler with icc  (dmpar)")
+./compile em_rce    (for time-independent cases, a text file has the sounding named "rce_sounding"
+                     needed to be present for ideal.exe)
+or
+./compile em_scm_xy (for time-dependent cases)
+
+
+To run:
+Please also read the WRF user guide for numerics and physics options
+> ./ideal.exe
+> mpiexec -np 64 ./wrf.exe (or use a job script in a linux cluster)
+
+---------------------------------------------------------------------------------------------------------
+Input files (specified in namelist.input):
+1.A netcdf file contains target sounding for conventionally forced and WTG runs
+ auxinput3_inname                    = "dyno_avg.nc"
+ auxinput3_interval_h                = 360
+        (frequency of input in minutes, set this to some large values (e.g., 60000)
+        to make run with time independent forcing)
+
+2.A netcdf file contains surface conditions (optional)
+ auxinput4_inname                    = "sst_avg.nc"
+        ( a netcdf file contains surface temperature )
+
+
+Note two turbulent mixing schemes are tested for CRM runs (other options do not conserve moisture well):
+1.2D Smag mixing + YSU PBL:  BL_PBL_PHYSICS = 1 and KM_OPT = 4
+2.3D Smag turbulent mixing:  BL_PBL_PHYSICS = 1000 and KM_OPT = 3
+
+---------------------------------------------------------------------------------------------------------
+In the RCE_WTG directory, several sample tests were created in the following directories:
+
+ - rce_test:        a RCE run with simplified treatment of radiative cooling, SST = 301.15 K
+ - wtg_test_sst0k:  a WTG run with target temperature taken from the RCE run, SST = 301.15 K
+ - wtg_test_sst2k:  a WTG run with target temperature taken from the RCE run, SST = 303.15 K
+ - namelist.input_explained: some namelist options are explained here (WRF options can be found in the WRF website
+                             or in the text file run/README.namelist
+
+
+---------------------------------------------------------------------------------------------------------
+In the jobutils/ directory, several matlab scripts are provided:
+plot_sfx.m      -  matlab script to compute rain and surface flux (check if rain = evaporation, or RCE is reached)
+read_print_th.m - read WRF RCE output and produce vertical profiles for WTG calculations
+save4wtg.m      - convert the RCE sounding files to a netcdf file
+
+---------------------------------------------------------------------------------------------------------
+
+
+The primary 2 subroutines for CRM simulations are module_force_scm.F and module_wtg_driver4gass.F.
+Other modified subroutines are:
+Registry.EM_COMMON
+module_big_step_utilities_em.
+module_em.F
+module_first_rk_step_part1.F
+module_first_rk_step_part2.F
+module_force_scm.F
+module_wtg_driver4gass.F
+module_wtg_driver0.F
+module_initialize_scm_xy.F
+module_microphysics_driver.F
+module_mp_milbrandt2mom.F
+module_mp_morr_two_moment.F
+module_mp_thompson.F
+module_mp_wdm6.F
+module_pbl_driver.F
+module_physics_addtendc.F
+module_physics_init.F
+module_ra_flg.F
+module_ra_goddard.F
+module_ra_hs.F
+module_ra_rrtmg_lw.F
+module_ra_rrtmg_sw.F
+module_ra_sw.F
+module_radiation_driver.F
+module_sf_idealscmsfclay.F
+module_surface_driver.F
+solve_em.F
+start_em.F
+
+If there any bugs in module_force_scm.F or other modified code, please let me know (wangsg@gmail.com).
+Other WRF related bugs, please report to WRF.
+
+----------------------------------------------------------------------------------------------------------------                                                            
+References:
+Anber, U., P. Gentine, S. Wang, and A. H. Sobel, 2015:  Fog and rain in the Amazon.
+PNAS. doi: 10.1073/pnas.1505077112
+
+Anber, U., S. Wang ,and A. H. Sobel, 2014:  Response of atmospheric convection to vertical wind shear:
+cloud resolving simulations with parameterized large-scale circulation.
+Part I: Specified radiative cooling.  Journal of the Atmospheric Sciences. 71, 2976-2993.
+
+Anber, U., S. Wang, and A. H. Sobel, 2015:  Effect of Surface Fluxes versus Radiative Heating on Tropical
+Deep Convection.  Journal of the Atmospheric Sciences. In press.
+
+Wang, S. and A. H. Sobel, 2011:  Response of convection to relative SST: Cloud-resolving simulations in 2D and 3D.
+Journal of Geophysical Research - Atmospheres , 116, D11119, 2011. doi:10.1029/2010JD015347. JGR link
+
+Wang, S. and A. H. Sobel, 2012:  Impact of imposed drying on deep convection in a cloud-resolving model.
+Journal of Geophysical Research - Atmospheres , 117, D02112, doi:10.1029/2011JD016847 JGR link
+
+Wang, S., A. H. Sobel, and Z. Kuang, 2013:  Cloud-resolving simulation of TOGA-COARE using parameterized large-scale
+dynamics.Journal of Geophysical Research - Atmospheres. 118, doi:10.1002/jgrd.50510.
+
+Wang, S., A. H. Sobel, J. Nie, 2015:  Modeling the MJO in a cloud-resolving model with parameterized
+large-scale dynamics: vertical structure, radiation, and horizontal advection of dry air.
+Journal of Advances in Modeling Earth Systems. In review.
+
+Wang, S., A. H. Sobel, J. Nie, 2015:  Modeling the MJO in a cloud-resolving model with parameterized
+large-scale dynamics: vertical structure, radiation, and horizontal advection of dry air.
+Journal of Advances in Modeling Earth Systems. In review.
+
+Wang, S., A. H. Sobel, A. Fridlind, Z. Feng, J. Comstock, P. Minnis, M. Nordeen, 2015:  Simulations of
+cloud-radiation interaction using large-scale forcing derived from the CINDY/DYNAMO northern sounding array.
+J. Adv. Model. Earth Syst., 7, no. 3, 1472-1498, doi:10.1002/2015MS000461.
