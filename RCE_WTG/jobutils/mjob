@@ -1,0 +1,59 @@
+#!/bin/csh
+#PBS -V
+#### Jobname
+#PBS -N testmatlab 
+#PBS -e testmatlab.err 
+#PBS -o testmatlab.out
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=1:00:00
+#PBS -q development@brewer.ldeo.columbia.edu 
+
+
+cd $PBS_O_WORKDIR
+@ NP = `cat $PBS_NODEFILE | wc -l`
+echo " "
+echo "Number of processes = ${NP}"
+echo " "
+echo "PBS_O_WORKDIR $PBS_O_WORKDIR"
+echo "We are at:"
+pwd
+echo " "
+echo "PBS_NODEFILE $PBS_NODEFILE contains:"
+cat  $PBS_NODEFILE
+echo " "
+echo "PBS_JOBID $PBS_JOBID"
+echo " "
+echo " "
+echo "job $PBS_JOBID started at:"
+date
+echo " "
+
+
+
+set disp = $DISPLAY
+
+#set cmd = `echo $1 | cut -d. -f 1 --output-delimiter ' ' `
+#echo $cmd
+
+
+unsetenv DISPLAY
+
+# Call MATLAB in batch mode 
+#nohup matlab >&! $1 >$2 << EOF & 
+
+#nohup matlab >&! matout << EOF 
+#nohup matlab >> matout << EOF
+nohup matlab -nodesktop -nodisplay -nosplash >> matout << EOF
+addpath('~/bin/matlib/');
+display('I''m here')
+addpath('~/bin/matlib/');
+startup_ncpath
+startup
+save4wtg
+%modify_tsk
+%read_print_th
+%plot_sfx
+EOF
+
+setenv DISPLAY $disp
+~                                               

@@ -1,0 +1,4 @@
+Use matlab script read_print_th.m (in ../rce_test/ directory) to produce rce_sounding.txt and rce_out_qvadv
+-  rce_sounding.txt   is the input sounding for ideal.exe
+-  rce_out_qvadv provide sounding profile (theta_bg, z_bg, prs_bg, qv_bg) used in namelist.input   
+- 

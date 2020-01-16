@@ -1,0 +1,1072 @@
+11,14c11,17
+<                              , scm_wind_adv, scm_vert_adv, scm_vert_adv_avg              &
+<                              , scm_soilT_force, scm_soilQ_force              &
+<                              , scm_force_th_largescale                       &
+<                              , scm_force_qv_largescale                       &
+---
+>                              , scm_wind_adv, scm_vert_adv,  scm_vert_adv_opt                &
+>                              , scm_th_relax_largescale                       &
+>                              , scm_th_relax_height                       &
+>                              , scm_qv_relax_largescale                       &
+>                              , scm_qv_relax_height                       &
+>                              , scm_th_hadv_largescale                       &
+>                              , scm_qv_hadv_largescale                       &
+17a21,22
+>            ,scm_dwdt         &
+>            ,scm_qv_hadv_tau         &
+19c24,25
+<            ,scm_force_target_tmk        &
+---
+>            ,scm_force_wave        &
+>            ,scm_force_wtg        &
+22a29,35
+>                  ,pblh_opt                   &
+>                  ,wtg_opt                   &
+> ! for wave coupling
+>                  ,wavecoupling_opt                   &
+>                  ,wavecoupling_topbc, wavecoupling_dmpopt                   &
+>                  ,nl_bg, theta_bg, qv_bg, w_bg, z_bg              &
+>                  ,wavenumber, wavedamping            &
+26,40c39
+<                              , u_g, v_g                                      &
+<                              , u_g_tend, v_g_tend                            &
+<                              , w_subs, w_subs_avg, w_subs_tend                           &
+<                              , th_upstream_x, th_upstream_x_tend             &
+<                              , th_upstream_y, th_upstream_y_tend             &
+<                              , qv_upstream_x, qv_upstream_x_tend             &
+<                              , qv_upstream_y, qv_upstream_y_tend             &
+<                              , ql_upstream_x, ql_upstream_x_tend             &
+<                              , ql_upstream_y, ql_upstream_y_tend             &
+<                              , u_upstream_x, u_upstream_x_tend               &
+<                              , u_upstream_y, u_upstream_y_tend               &
+<                              , v_upstream_x, v_upstream_x_tend               &
+<                              , v_upstream_y, v_upstream_y_tend               &
+<                              , tau_x, tau_x_tend                             &
+<                              , tau_y, tau_y_tend                             &
+---
+>                              , w_subs, w_subs_tend                           &
+44a44
+>                              ,qv_largescale_tend_deriv                             &
+53,59c53,54
+<                              , num_force_soil_layers, num_soil_layers        &
+<                              , soil_depth_force, zs                          &
+<                              , tslb, smois                                   &
+<                              , t_soil_forcing_val, t_soil_forcing_tend       &
+<                              , q_soil_forcing_val, q_soil_forcing_tend       &
+<                              , tau_soil                                      &
+<                              , z, z_at_w, th, qv, ql, u, v                   &
+---
+>                              , z, z_at_w, th_phy, qv, ql, u_phy, v_phy                   &
+>                              ,  p_phy, pi_phy, p8w, t_phy,  rho             & !SW==
+60a56
+>                              , mut, znu, znw, omega_wtg   &
+68,70c64,65
+< ! adds forcing to bl tendencies and also to base state/geostrophic winds.
+< 
+<    USE module_init_utilities, ONLY : interp_0
+---
+>      USE module_model_constants
+>      USE module_init_utilities, ONLY : interp_0
+86,90d80
+<                                                 scm_vert_adv_avg, & !SW==
+<                                                 scm_soilT_force, &
+<                                                 scm_soilQ_force, &
+<                                                 scm_force_th_largescale, &
+<                                                 scm_force_qv_largescale, &
+92,98c82,113
+<            scm_force_radiation  ,       &
+<            scm_force_target_tmk ,       &
+<                                                 scm_force_wind_largescale
+< 
+<    REAL, DIMENSION(ims:ime,kms:kme,jms:jme), INTENT(IN   ) :: z, th, qv, ql
+<    REAL, DIMENSION(ims:ime,kms:kme,jms:jme), INTENT(IN   ) :: u, v
+<    REAL, DIMENSION(ims:ime,kms:kme,jms:jme), INTENT(IN   ) :: z_at_w
+---
+>                                                 scm_th_relax_largescale,     &
+>                                                 scm_qv_relax_largescale,     &
+>                                                 scm_th_hadv_largescale ,     &
+>                                                 scm_qv_hadv_largescale ,     &
+>                                                 scm_force_radiation  ,       &
+>                                                 scm_force_wave,       &
+>                                                 scm_force_wtg,       &
+>                                                 scm_force_wind_largescale, &
+>                                                 scm_qv_hadv_tau,  &
+>                                                 scm_dwdt
+> 
+>    REAL,       INTENT(IN   )                 ::  scm_th_relax_height     ,     &
+>                                                  scm_qv_relax_height     
+> 
+>    REAL,       DIMENSION( kms:kme ),                              &
+>                          INTENT(IN   )    ::               znu,   &
+>                                                            znw
+> 
+>    REAL, DIMENSION(ims:ime,kms:kme,jms:jme), INTENT(IN   ) :: z, qv, ql, z_at_w
+> 
+>    REAL,       DIMENSION( ims:ime, kms:kme, jms:jme ),            &
+>                INTENT(IN   )    ::                         p_phy, &
+>                                                            pi_phy, &
+>                                                              p8w, &
+>                                                              rho, &
+>                                                            t_phy, &
+>                                                            u_phy, &
+>                                                            v_phy, &
+>                                                           th_phy
+> 
+>    REAL , DIMENSION( ims:ime , jms:jme ), INTENT(  IN) :: mut
+> 
+105d119
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT)       :: u_g,v_g
+108d121
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: u_g_tend,v_g_tend
+110,132c123
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: th_upstream_x_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: th_upstream_y_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: qv_upstream_x_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: qv_upstream_y_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: ql_upstream_x_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: ql_upstream_y_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: u_upstream_x_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: u_upstream_y_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: v_upstream_x_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: v_upstream_y_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: tau_x_tend
+<    REAL, DIMENSION(num_force_layers), INTENT (IN) :: tau_y_tend
+< 
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: th_upstream_x
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: th_upstream_y
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: u_upstream_x
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: u_upstream_y
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: v_upstream_x
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: v_upstream_y
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: qv_upstream_x
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: qv_upstream_y
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: ql_upstream_x
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: ql_upstream_y
+---
+> 
+134,136c125,127
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: w_subs_avg !SW==
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: tau_x
+<    REAL, DIMENSION(num_force_layers), INTENT (INOUT) :: tau_y
+---
+>    REAL, DIMENSION( kms:kme ) :: w_subs_modellevels
+> 
+>    real, DIMENSION( kms:kme) :: omega_wtg
+146a138
+>    REAL, DIMENSION(kms:kme), INTENT (INOUT) :: qv_largescale_tend_deriv
+153c145,146
+<                                                          ,th_scm_target        
+---
+>                                                          ,th_scm_target       
+>    REAL, DIMENSION( kms:kme ) :: th_scm_target_modellevels 
+155,164d147
+< ! WA 1/3/10 For soil forcing
+<    INTEGER,    INTENT(IN   )         :: num_force_soil_layers, num_soil_layers
+<    REAL, DIMENSION(ims:ime,num_soil_layers,jms:jme),INTENT(INOUT) :: tslb, smois
+<    REAL, DIMENSION(num_force_soil_layers), INTENT (INOUT) :: t_soil_forcing_val
+<    REAL, DIMENSION(num_force_soil_layers), INTENT (INOUT) :: t_soil_forcing_tend
+<    REAL, DIMENSION(num_force_soil_layers), INTENT (INOUT) :: q_soil_forcing_val
+<    REAL, DIMENSION(num_force_soil_layers), INTENT (INOUT) :: q_soil_forcing_tend
+<    REAL, DIMENSION(num_force_soil_layers), INTENT (INOUT) :: tau_soil
+<    REAL, DIMENSION(num_force_soil_layers), INTENT (IN   ) :: soil_depth_force
+<    REAL, DIMENSION(num_soil_layers),       INTENT (IN   ) :: zs        
+171a155
+>    REAL, DIMENSION( kms:kme ) :: tao_ptime
+190c174
+<    REAL, DIMENSION(kms:kme)     :: w_dthdz, w_dudz, w_dvdz, w_dqvdz, w_dqldz
+---
+>    REAL, DIMENSION(kms:kme)     :: w_dthdz, w_dudz, w_dvdz, w_dqvdz, w_dqldz, w_dthdz_vert, w_dqvdz_vert
+194c178
+<    REAL                         :: t_ls, qv_ls, ql_ls, qrad_ls
+---
+>    REAL                         :: t_ls, qv_ls, ql_ls, qrad_ls, qv_ls_tmp2
+200,204d183
+< ! Soil forcing WA 1/3/10
+<    INTEGER                      :: ks
+<    REAL                         :: t_soil, q_soil
+<    REAL, DIMENSION(num_soil_layers) :: t_soil_tend, q_soil_tend
+<    REAL, DIMENSION(num_soil_layers) :: timescale_soil
+207,208c186,199
+<    real ::  no_points, uuu_sum, vvv_sum, zzz_sum, dth_sum, qv_sum
+<    real, DIMENSION( kms:kme) :: uuu_avg, vvv_avg, zzz_avg, qv_avg, th_avg
+---
+>    real ::  no_points, uuu_sum, vvv_sum, zzz_sum, z8w_sum, dth_sum, qv_sum,  phalf_sum, pfull_sum, rho_sum, mu_sum, mu_avg
+>    real, DIMENSION( kms:kme) :: uuu_avg, vvv_avg, zzz_avg, z8w_avg,qv_avg, th_avg, rho_avg, phalf_avg, pfull_avg , th_v_avg
+>    real :: qtend1, qtend2,  omega_p, omega_n
+> 
+>    integer, intent(in) :: scm_vert_adv_opt
+> !SW== wave coupling variables
+>     integer, intent(in) :: nl_bg
+>     integer, intent(in) :: pblh_opt 
+>     integer, intent(in) :: wtg_opt
+>     integer, intent(in) :: wavecoupling_opt
+>     integer, intent(in) :: wavecoupling_dmpopt ! option for damping: specify or constant or pressure depencance
+>     real, intent(in) :: wavecoupling_topbc  ! top of the wave coupling layer : meters
+>     real, intent(in) :: wavedamping, wavenumber
+>     real, DIMENSION( nl_bg), intent(in) :: theta_bg, qv_bg, z_bg, w_bg
+212a204
+>   integer :: k_wtg_top = 0
+215c207,209
+<     real,DIMENSION(num_force_soil_layers) ::  dthdz_tmp
+---
+>     integer,dimension(kms:kme) :: kneg_ind
+>     real, dimension(kms:kme) :: w_subs_useful, z_useful
+>     real,DIMENSION(num_force_layers) ::  dthdz_tmp
+216a211,213
+>     real,DIMENSIOn(num_force_layers) :: q_tau_ls 
+> 
+> 
+221a219,222
+> 
+>   scm_force_ls_relax = .false.
+>   scm_force_ls_tend = .true.
+> 
+235,236d235
+< !print*,'u_g=',u_g
+< !print*,'v_g=',v_g
+252a252,253
+>      th_scm_target_modellevels = 0.0
+>      w_subs_modellevels = 0.0
+256a258,259
+> 
+>      q_tau_ls = 100.0*86400.0 ! default values of q_tau_ls
+264d266
+< !       u_base(k) = interp_0(u_g,z_force,z_base(k),num_force_layers)
+283c285
+<     IF(scm_force_wind_largescale.or.scm_force_target_tmk)then
+---
+>     IF(scm_force==1)then !calculate domain mean quantities:
+288a291
+>          z8w_sum = 0.0
+290a294,297
+>          phalf_sum = 0.0
+>          pfull_sum = 0.0
+>          rho_sum = 0.0
+> 
+293,294c300,301
+<                uuu_sum = uuu_sum + u(i,k,j)
+<                vvv_sum = vvv_sum + v(i,k,j)
+---
+>                uuu_sum = uuu_sum + u_phy(i,k,j)
+>                vvv_sum = vvv_sum + v_phy(i,k,j)
+296c303,304
+<                dth_sum = dth_sum + th(i,k,j)
+---
+>                z8w_sum = z8w_sum + z_at_w(i,k,j)
+>                dth_sum = dth_sum + th_phy(i,k,j)
+297a306,312
+> 
+>                rho_sum = rho_sum + rho(i,k,j)
+>                phalf_sum = phalf_sum + p_phy(i,k,j)
+>                pfull_sum = pfull_sum + p8w(i,k,j)
+> 
+>                if(k==kts)  mu_sum = mu_sum + mut(i,j)
+> 
+309a325,327
+>          z8w_avg(k) = wrf_dm_sum_real ( z8w_sum )
+>          z8w_avg(k) = z8w_avg(k) / no_points
+> 
+314a333,351
+> 
+>          rho_avg(k) = wrf_dm_sum_real ( rho_sum )
+>          rho_avg(k) = rho_avg(k) / no_points
+> 
+>          pfull_avg(k) = wrf_dm_sum_real ( pfull_sum )
+>          pfull_avg(k) = pfull_avg(k) / no_points
+> 
+>          phalf_avg(k) = wrf_dm_sum_real ( phalf_sum )
+>          phalf_avg(k) = phalf_avg(k) / no_points
+> 
+>          if(rho_avg(k)>2.and.k<kde-1) then
+>             print*,'k,rho',k,rho_avg(k),th_avg(k)
+>             stop
+>          endif
+>          th_v_avg(k) = th_avg(k)*(1+0.608*qv_avg(k))
+> 
+>          mu_avg = wrf_dm_sum_real ( mu_sum )/no_points
+> 
+> 
+327a365,426
+>   IF(scm_force_wave)THEN
+>     if(wavecoupling_opt==2.or.wavecoupling_opt==3)then
+>         do k=kts,kte
+>           th_scm_target_modellevels(k) = interp_0(th_scm_target,z_force,zzz_avg(k),num_force_layers)  !should be th_v_prime
+>         enddo 
+>         !do k=kts,kte
+>         !  th_scm_target_modellevels(k) = interp_0(th_largescale,z_force,zzz_avg(k),num_force_layers)
+>         !enddo 
+>       call wave_coupling (                                            &
+>                   qvten, thten                                        &
+>                  , omega_wtg, znu, znw                                &
+>                  , wavecoupling_opt                                   &
+>                  , wavecoupling_topbc, wavecoupling_dmpopt            &
+>                  , phalf_avg, pfull_avg, rho_avg, zzz_avg, th_avg, th_v_avg, qv_avg              &
+>                  , nl_bg, theta_bg, qv_bg, z_bg,th_scm_target_modellevels                        &
+>                  , wavenumber, wavedamping                            &
+>                  , qv                                                &
+>                  , dt                                                 &
+>                  , scm_dwdt                              &
+>                  ,ids,ide, jds,jde, kds,kde                           &
+>                  ,ims,ime, jms,jme, kms,kme                           &
+>                  ,i_start,i_end, j_start,j_end, kts,kte, num_tiles                    )
+> 
+>     elseif(wavecoupling_opt==42.or.wavecoupling_opt==33)then  !impose temperature anamalies and calculate omega using wave coupling approach
+>         do k=kts,kte
+>           th_scm_target_modellevels(k) = interp_0(th_scm_target,z_force,zzz_avg(k),num_force_layers)  !should be th_v_prime
+>         enddo 
+>       call wave_coupling (                                            &
+>                   qvten, thten                                        &
+>                  , omega_wtg, znu, znw                                &
+>                  , wavecoupling_opt                                   &          ! on model variables
+>                  , wavecoupling_topbc, wavecoupling_dmpopt            &
+>                  , phalf_avg, pfull_avg, rho_avg, zzz_avg, th_avg, th_v_avg, qv_avg              &
+>                  , kme, th_avg, qv_avg*1e3, zzz_avg,th_scm_target_modellevels                        &
+>                  , wavenumber, wavedamping                            &
+>                  , qv                                                 &
+>                  , dt                                                 &
+>                  , scm_dwdt                              &
+>                  ,ids,ide, jds,jde, kds,kde                           &
+>                  ,ims,ime, jms,jme, kms,kme                           &
+>                  ,i_start,i_end, j_start,j_end, kts,kte, num_tiles                    )
+>     elseif(wavecoupling_opt==22.or.wavecoupling_opt==-1000)then  !calculate temperature anamalies using  toga obs as background state, and calculate omega using wave coupling approach
+>         do k=kts,kte
+>           th_scm_target_modellevels(k) = interp_0(th_scm_target,z_force,zzz_avg(k),num_force_layers)  !should be th_v_prime
+>         enddo
+>       !print*,'kk',k,num_force_layers, zzz_avg
+>       call wave_coupling (                                            &
+>                   qvten, thten                                        &
+>                  , omega_wtg, znu, znw                                &
+>                  , wavecoupling_opt                                   &          ! on model variables
+>                  , wavecoupling_topbc, wavecoupling_dmpopt            &
+>                  , phalf_avg, pfull_avg, rho_avg, zzz_avg, th_avg, th_v_avg, qv_avg              &
+>                  , num_force_layers, th_largescale, qv_largescale*1e3, z_force,th_scm_target_modellevels                        &
+>                  , wavenumber, wavedamping                            &
+>                  , qv                                                 &
+>                  , dt                                                 &
+>                  , scm_dwdt                              &
+>                  ,ids,ide, jds,jde, kds,kde                           &
+>                  ,ims,ime, jms,jme, kms,kme                           &
+>                  ,i_start,i_end, j_start,j_end, kts,kte, num_tiles                    )
+>     endif
+>   ENDIF !end of wavecoupling
+334c433
+<       do k = kts+1,kte
+---
+>       do k = kts,kte
+337a437
+>           w_dthdz_vert(k) = 0.0
+338a439
+>           w_dqvdz_vert(k) = 0.0
+348c449
+<     if ( scm_force_th_largescale .or. scm_force_qv_largescale .or. scm_force_ql_largescale .or. scm_force_wind_largescale ) then
+---
+> !    if ( scm_force_th_largescale .or. scm_force_qv_largescale .or. scm_force_ql_largescale .or. scm_force_wind_largescale .) then
+352c453
+<     endif
+---
+> !    endif
+353a455,471
+>     if ( scm_th_relax_largescale ) then
+>        !if (  scm_force_ls_relax) then
+>         do k = kts,kte-1
+>              if(zzz_avg(k)>=scm_th_relax_height.and.zzz_avg(k)<=z_force(num_force_layers))then
+>               t_ls = interp_0(th_largescale,z_force,zzz_avg(k),num_force_layers)
+>               th_ls_tend(k) = th_ls_tend(k) + (t_ls-th_avg(k))/3600.0
+>              endif
+>         enddo
+>     endif
+>     if( scm_th_hadv_largescale) then ! WA if upstream is empty, use tendency only not value+tend
+>           do k = kts,kte-1
+>              if(z(i,k,j)<= z_force(num_force_layers))then
+>                 t_ls = interp_0(th_largescale_tend,z_force,z(i,k,j),num_force_layers) !SW==
+>                 th_ls_tend(k) =    th_ls_tend(k) +  t_ls
+>              endif
+>           enddo
+>     endif
+355,362c473,484
+<     if ( scm_force_th_largescale ) then
+< !       if ( th_largescale(1) > 0.0 .and. scm_force_ls_relax) then
+< !          do k = kms,kme-1
+< !             t_ls = interp_0(th_largescale,z_force,z(ids,k,jds),num_force_layers)
+< !             th_ls_tend(k) = (t_ls-th(ids,k,jds))/ls_timescale(k)
+< !          enddo
+< !       endif
+<        if( scm_force_ls_tend) then ! WA if upstream is empty, use tendency only not value+tend
+---
+>     
+>     if ( scm_qv_relax_largescale .and. (.not. scm_qv_hadv_largescale) ) then
+>           do k = kms,kme-1
+>              if(zzz_avg(k)>=15000)then
+>              !qv_ls = interp_0(qv_largescale,z_force,z(i,k,j),num_force_layers) 
+>              !qv_ls_tend(k) = (qv_ls-qv(i,k,j))/q_timescale
+>              qv_ls = interp_0(qv_largescale,z_force,zzz_avg(k),num_force_layers)
+>              qv_ls_tend(k) = qv_ls_tend(k) + (qv_ls-qv_avg(k))/7200.0
+>              endif
+>           enddo
+>      endif
+>      if( scm_qv_hadv_largescale .and. (.not. scm_qv_relax_largescale) ) then ! WA if upstream is empty, use tendency only not value+tend
+364,368c486,491
+<              !t_ls = interp_0(dt*th_largescale_tend,z_force,z(ids,k,jds),num_force_layers)
+<              t_ls = interp_0(th_largescale_tend,z_force,z(i,k,j),num_force_layers) !SW==
+<              !th_ls_tend(k) =  th_ls_tend(k) + t_ls/ls_timescale(k)
+<              th_ls_tend(k) =    t_ls
+< !print*,'k=',k,th_ls_tend(k),t_ls
+---
+>              !qv_ls = interp_0(dt*qv_largescale_tend,z_force,z(ids,k,jds),num_force_layers)
+>              if(z(i,k,j)< z_force(num_force_layers))then
+>                qv_ls = interp_0(qv_largescale_tend,z_force,z(i,k,j),num_force_layers)
+>                !qv_ls_tend(k) = qv_ls_tend(k) + qv_ls/ls_timescale(k)
+>                qv_ls_tend(k) =  qv_ls_tend(k) + qv_ls
+>              endif
+370c493
+<        endif
+---
+> 
+373,376c496,502
+<     if (scm_force_radiation ) then
+<           do k = kts,kte
+<              qrad_ls = interp_0(qradiation_scm,z_force,z(i,k,j),num_force_layers) !SW==
+<              qrad_tend(k) =  qrad_ls
+---
+>      if( scm_qv_hadv_tau ) then 
+>      !if( scm_qv_hadv_largescale .and. scm_qv_relax_largescale ) then 
+>           do k = 1,num_force_layers
+>                 q_tau_ls(k) = qv_largescale_tend(k)/max(qv_largescale(k),10e-7)
+>                 !if(i==2.and.j==2)print*,'q_tau,qv=',k, z_force(k), qv_largescale(k),   q_tau_ls(k)
+> !       WRITE( message, '(i4,5f12.5)' ) k, z_force(k), qv_largescale(k),   q_tau_ls(k)
+> !       CALL wrf_message (  message )
+377a504,524
+> 
+>           do k=kts,kte
+>              !if(z(i,k,j)<= z_force(num_force_layers))then
+>              if(z(i,k,j)<= 17000.0)then
+>                qv_ls = interp_0(q_tau_ls, z_force, z(i,k,j),num_force_layers)
+>                qv_ls_tmp2 = interp_0(qv_largescale_tend, z_force, z(i,k,j),num_force_layers)
+>                !qv_ls_tend(k) = qv_ls_tend(k) + qv_ls/ls_timescale(k)
+>                qv_ls_tend(k) =  qv_ls_tend(k) + qv_avg(k)*qv_ls
+>                !if(i==2.and.j==2)print*,'q_tau=',k,  z(i,k,j), qv_largescale_tend(k),  qv_avg(k)/qv_ls
+>                qv_largescale_tend_deriv(k) = qv_avg(k)*qv_ls
+> 
+>                if(i==2.and.j==2)then
+>                WRITE( message, '(a6, i3,F10.3, 4G12.4)' )'q_tau=',k,  z(i,k,j), qv_ls_tmp2,  qv_avg(k), qv_ls, qv_avg(k)*qv_ls
+>                CALL wrf_message (  message )
+>                endif
+>              else
+>                qv_ls = interp_0(qv_largescale,z_force,z(i,k,j),num_force_layers) ! upper level
+>                !qv_ls_tend(k) = qv_ls_tend(k) + (qv_ls-qv_avg(k))/7200.0
+>              endif
+>           enddo
+> 
+380,387c527,528
+<     if ( scm_force_qv_largescale ) then
+< !       if ( qv_largescale(1) > 0.0 .and. scm_force_ls_relax) then
+< !          do k = kms,kme-1
+< !             qv_ls = interp_0(qv_largescale,z_force,z(ids,k,jds),num_force_layers) 
+< !             qv_ls_tend(k) = (qv_ls-qv(ids,k,jds))/ls_timescale(k)
+< !          enddo
+< !       endif
+<        if( scm_force_ls_tend) then ! WA if upstream is empty, use tendency only not value+tend
+---
+> 
+>     if (scm_force_radiation ) then
+389,392c530,531
+<              !qv_ls = interp_0(dt*qv_largescale_tend,z_force,z(ids,k,jds),num_force_layers)
+<              qv_ls = interp_0(qv_largescale_tend,z_force,z(i,k,j),num_force_layers)
+<              !qv_ls_tend(k) = qv_ls_tend(k) + qv_ls/ls_timescale(k)
+<              qv_ls_tend(k) =  qv_ls
+---
+>              qrad_ls = interp_0(qradiation_scm,z_force,z(i,k,j),num_force_layers) !SW==
+>              qrad_tend(k) =  qrad_ls
+394d532
+<        endif
+399c537,538
+<        if ( u_largescale(1) > -900.0.and. scm_force_ls_relax) then
+---
+>        !if ( u_largescale(1) > -900.0.and. scm_force_ls_relax) then
+>        if ( u_largescale(1) > -900.0) then
+400a540
+>            if(zzz_avg(k) < z_force(num_force_layers))then
+404a545
+>            endif
+418,420c559,607
+< ! interpolate to force_layers first, calculate w_subs, and finally advect moisture 
+<     if ( scm_force_target_tmk ) then
+<       ! eta level first
+---
+>   IF ( scm_force_wtg )then
+>     if( wtg_opt==1) then  ! interpolate to force_layers first, calculate w_subs, and finally advect moisture 
+>       do k = kts+1,kte
+>          dthdz(k) = ((th_avg(k)-th_avg(k-1))/(zzz_avg(k)-zzz_avg(k-1))+ (th_avg(k+1)-th_avg(k))/(zzz_avg(k+1)-zzz_avg(k))) *0.5
+>          dthdz(k) = max(dthdz(k), 0.001)
+>          dqvdz(k) = ((qv_avg(k)-qv_avg(k-1))/(zzz_avg(k)-zzz_avg(k-1)) + (qv_avg(k+1)-qv_avg(k))/(zzz_avg(k+1)-zzz_avg(k)))*0.5
+>          w_subs(k) = 0.0
+>          w_subs_modellevels(k) = 0.0
+>       enddo
+> 
+>       do k = kts,kte
+>             th_scm_target_modellevels(k) = th_avg(k)-interp_0(th_largescale,z_force,zzz_avg(k),num_force_layers)
+>       enddo
+> 
+>       do k = kte, kts, -1
+>          if(zzz_avg(k) < wavecoupling_topbc  )then
+>              k_wtg_top = k
+>              exit
+>          endif
+>       enddo
+> 
+>       do k=k_wtg_top,1,-1
+>         if(zzz_avg(k).gt.real(pblh_opt))then
+>              w_subs_modellevels(k) = th_scm_target_modellevels(k)/tao_time/dthdz(k)
+>              w_subs_modellevels(k) = max(   min(w_subs_modellevels(k),0.15)    ,-0.15)
+>              k_pbl = k
+>         endif
+>       enddo
+>       do k=1,k_pbl-1
+>          w_subs_modellevels(k) = zzz_avg(k)*w_subs_modellevels(k_pbl)/zzz_avg(k_pbl)
+>       enddo
+>     
+>       if(i==1.and.j==1)print*,'k_pbl,pblh_opt' , k_pbl, pblh_opt
+>       do k=1,k_wtg_top
+>          omega_wtg(k) = w_subs_modellevels(k)
+>          if(i==1.and.j==1)print*,k, w_subs_modellevels(k), zzz_avg(k), dthdz(k),  th_scm_target_modellevels(k)
+>       enddo
+> 
+>       do k = kts+1,kte !k_wtg_top
+>         if(zzz_avg(k).gt.real(pblh_opt).and. z_at_w(i,k,j) < z_force(num_force_layers) .and. z_force(k) > -900.0)then
+>                w_dthdz(k) = -th_scm_target_modellevels(k)/tao_time
+>         else
+>                w_dthdz(k) =  0.0
+>         endif
+>         w_dqvdz(k) = -w_subs_modellevels(k)*dqvdz(k)
+>       enddo
+> 
+>   elseif ( wtg_opt==-1) then
+>              ! eta level first
+422a610,611
+>          !if(i==1.and.j==1)print*,k,  zzz_avg(k),  dthdz(k), th_avg(k),qrad_tend(k)
+>          dthdz(k) = max(dthdz(k), 0.001)
+428,441c617,624
+< 
+<       ktmp=0
+<       do k=1,num_force_layers
+<         dthdz_flayers(k) = interp_0(dthdz,zzz_avg,z_force(k),kte)
+< 
+<         if(dthdz_flayers(k) >0.0) then
+<             ktmp=ktmp+1
+<             dthdz_tmp(ktmp) = dthdz_flayers(k)
+<             zf_tmp(ktmp) = z_force(k)
+<         endif
+< !        dthdz_flayers(k) = min(dthdz_flayers(k),0.0)
+<         if(z_force(k).gt.1500.0.and.dthdz_flayers(k)<0.0)then
+<             print*,'dthdz_flayers=',k, ' ', dthdz_flayers(k), ' ',itimestep
+<             ltogadiag = .true.
+---
+>       do k = 1, num_force_layers 
+>       !th_scm_target_modellevels(k) = interp_0(th_scm_target,z_force,zzz_avg(k),num_force_layers)
+>         if(wavecoupling_opt==0.or.wavecoupling_opt==-1.or.wavecoupling_opt==-2.or.wavecoupling_opt==-30.or.wavecoupling_opt==-100)then
+>             !th_scm_target(k) = th_scm_target(k) 
+>         elseif(wavecoupling_opt==-21.or.wavecoupling_opt==-22.or.wavecoupling_opt==-3)then
+>             wtmp = interp_0(th_avg,zzz_avg,z_force(k),kme)
+>             th_scm_target(k) = wtmp-th_largescale(k) 
+>             if(i==1.and.j==1)print*,k,  z_force(k),  dthdz_flayers(k), th_scm_target(k) 
+442a626
+>         tao_ptime(k) = tao_time*(1e5/phalf_avg(k))
+443a628
+> 
+445,447c630
+<          if(z_force(k).gt.1500.0.and.dthdz_flayers(k)<0.0)then
+<            dthdz_flayers(k) = interp_0(dthdz_tmp,zf_tmp,z_force(k),ktmp)
+<          endif
+---
+>         dthdz_flayers(k) = interp_0(dthdz,zzz_avg,z_force(k),kme)
+449d631
+< 
+452c634
+<         if(z_force(k).gt.1500.0)then
+---
+>         if(z_force(k).gt.real(pblh_opt))then
+458c640
+<              continue 
+---
+>              continue
+464c646,648
+< 
+---
+>       do k=1,num_force_layers
+>          if(i==1.and.j==1)print*,k, w_subs(k), z_force(k),  dthdz_flayers(k), th_scm_target(k)
+>       enddo
+468,469c652
+<         if(z_force(k).gt.1500.and. z_at_w(i,k,j) < z_force(num_force_layers) .and. z_force(k) > -900.0)then
+<         !if(z_force(k).gt.1500.0)then
+---
+>         if(zzz_avg(k).gt.real(pblh_opt).and. z_at_w(i,k,j) < z_force(num_force_layers) .and. z_force(k) > -900.0)then
+475a659
+>           omega_wtg(k) = interp_0(w_subs,z_force,zzz_avg(k),num_force_layers) 
+481,482c665,666
+<     endif 
+< 
+---
+>   endif 
+>   ENDIF ! END of WTG
+484,485c668,670
+< ! w on full levels, then advect
+<     if ( scm_vert_adv ) then
+---
+> ! Impose W
+>   IF ( scm_vert_adv ) then
+>      if(scm_vert_adv_opt==1)then ! perform vertical advection on forcing levels 
+487,491c672,675
+<          dthdz(k) = (th(i,k,j)-th(i,k-1,j))/(z(i,k,j)-z(i,k-1,j))
+<          dqvdz(k) = (qv(i,k,j)-qv(i,k-1,j))/(z(i,k,j)-z(i,k-1,j))
+<          !dqldz(k) = (ql(2,k,2)-ql(2,k-1,2))/(z(2,k,2)-z(2,k-1,2))
+<          !dudz(k)  = (u(2,k,2)-u(2,k-1,2))/(z(2,k,2)-z(2,k-1,2))
+<          !dvdz(k)  = (v(2,k,2)-v(2,k-1,2))/(z(2,k,2)-z(2,k-1,2))
+---
+>          !dthdz(k) = (th_phy(i,k,j)-th_phy(i,k-1,j))/(z(i,k,j)-z(i,k-1,j))
+>          !dqvdz(k) = (qv(i,k,j)-qv(i,k-1,j))/(z(i,k,j)-z(i,k-1,j))
+>          dthdz(k) = 0.5*((th_avg(k)-th_avg(k-1))/(zzz_avg(k)-zzz_avg(k-1)) + (th_avg(k+1)-th_avg(k))/(zzz_avg(k+1)-zzz_avg(k))  )
+>          dqvdz(k) = 0.5*((qv_avg(k)-qv_avg(k-1))/(zzz_avg(k)-zzz_avg(k-1)) + ((qv_avg(k+1)-qv_avg(k))/(zzz_avg(k+1)-zzz_avg(k))) )
+494,496c678,690
+<           wtmp = interp_0(w_subs,z_force,z_at_w(i,k,j),num_force_layers)
+<           w_dthdz(k) = -wtmp*dthdz(k)
+<           w_dqvdz(k) = -wtmp*dqvdz(k)
+---
+>           if(wavecoupling_opt==2)then  !turn on vertical advection by the background time-independant large scale vertical velocity
+>             if(zzz_avg(k) < z_bg(nl_bg)) then
+>                !wtmp = interp_0(w_bg,z_bg,z_at_w(i,k,j),nl_bg)
+>                wtmp = interp_0(w_bg,z_bg,zzz_avg(k),nl_bg)
+>             else
+>                wtmp=0.0
+>             endif
+>           else
+>             !wtmp = interp_0(w_subs,z_force,z_at_w(i,k,j),num_force_layers)
+>             wtmp = interp_0(w_subs,z_force,zzz_avg(k),num_force_layers)
+>           endif
+>           w_dthdz_vert(k) = -wtmp*dthdz(k)
+>           w_dqvdz_vert(k) = -wtmp*dqvdz(k)
+498,508d691
+<           !w_dudz(k)  = w*dudz(k)
+<           !w_dvdz(k)  = w*dvdz(k)
+<       enddo
+<     endif 
+<     if ( scm_vert_adv_avg ) then
+<       do k = kts+1,kte
+<          dthdz(k) = (th(i,k,j)-th(i,k-1,j))/(z(i,k,j)-z(i,k-1,j))
+<          dqvdz(k) = (qv(i,k,j)-qv(i,k-1,j))/(z(i,k,j)-z(i,k-1,j))
+<          !dqldz(k) = (ql(2,k,2)-ql(2,k-1,2))/(z(2,k,2)-z(2,k-1,2))
+<          !dudz(k)  = (u(2,k,2)-u(2,k-1,2))/(z(2,k,2)-z(2,k-1,2))
+<          !dvdz(k)  = (v(2,k,2)-v(2,k-1,2))/(z(2,k,2)-z(2,k-1,2))
+510,516c693,732
+<       do k = kts+1,kte
+<           wtmp = interp_0(w_subs_avg,z_force,z_at_w(i,k,j),num_force_layers)
+<           w_dthdz(k) = -wtmp*dthdz(k)
+<           w_dqvdz(k) = -wtmp*dqvdz(k)
+<           !w_dqldz(k) = w*dqldz(k)
+<           !w_dudz(k)  = w*dudz(k)
+<           !w_dvdz(k)  = w*dvdz(k)
+---
+>      elseif(scm_vert_adv_opt==2)then ! perform vertical advection on eta model levels
+>         do k = kts+1,kte
+>               if(z_force(num_force_layers) > zzz_avg(k))then
+>                    omega_wtg(k) = interp_0 (w_subs, z_force,zzz_avg(k),num_force_layers)
+>                    omega_wtg(k) = -omega_wtg(k)*rho_avg(k)*9.81/mu_avg
+>               else
+>                    omega_wtg(k)  = 0.0
+>               endif
+>         enddo
+>         do k = kts+1,kte
+>                  if(k>1.and.k<kde-1)then
+>                         omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                         omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0)
+>                         qtend2 = omega_p*(qv_avg(k+1) - qv_avg(k))/(znu(k+1)-znu(k))
+>                         qtend1 = omega_n*(qv_avg(k) - qv_avg(k-1)) /(znu(k)-znu(k-1))
+>                         w_dqvdz_vert(k) = -(qtend1+qtend2)
+>                  elseif(k==kde-1)then
+>                         omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0)
+>                         qtend1 = omega_n*(qv_avg(k) - qv_avg(k-1)) /(znu(k)-znu(k-1))
+>                         w_dqvdz_vert(k) = -qtend1
+>                  elseif(k==1)then
+>                         omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                         qtend2 = omega_p*(qv_avg(k+1) - qv_avg(k))/(znu(k+1)-znu(k))
+>                         w_dqvdz_vert(k) = -qtend2
+>                  endif
+>                  if(k>1.and.k<kde-1)then
+>                         omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                         omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0)
+>                         qtend2 = omega_p*(th_avg(k+1) - th_avg(k))/(znu(k+1)-znu(k))
+>                         qtend1 = omega_n*(th_avg(k) - th_avg(k-1)) /(znu(k)-znu(k-1))
+>                         w_dthdz_vert(k) = -(qtend1+qtend2)
+>                      elseif(k==kde-1)then
+>                         omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0)
+>                         qtend1 = omega_n*(th_avg(k) - th_avg(k-1)) /(znu(k)-znu(k-1))
+>                         w_dthdz_vert(k) = -qtend1
+>                      elseif(k==1)then
+>                         omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                         qtend2 = omega_p*(th_avg(k+1) - th_avg(k))/(znu(k+1)-znu(k))
+>                         w_dthdz_vert(k) = -qtend2
+>                  endif
+518c734,737
+<     endif 
+---
+> 
+>      endif
+>     ENDIF ! END of Impose-W
+>  
+527c746
+<     do k = kts,kte
+---
+>     do k = kts,kte-1
+529,530c748,752
+<                       0.5*(w_dthdz(k) + w_dthdz(k+1))              &
+<                       + th_ls_tend(k)
+---
+>                       w_dthdz(k)               &                               !WTG or wavecoupling
+>                       + w_dthdz_vert(k)        &
+>                       !0.5*(w_dthdz(k) + w_dthdz(k+1))              &
+>                       !+ 0.5*(w_dthdz_vert(k) + w_dthdz_vert(k+1))              &
+>                       + th_ls_tend(k) + qrad_tend(k)
+533c755,758
+<                       0.5*(w_dqvdz(k) + w_dqvdz(k+1))              &
+---
+>                          w_dqvdz(k)               &
+>                       + w_dqvdz_vert(k)        &
+>                       !0.5*(w_dqvdz(k) + w_dqvdz(k+1))              &
+>                       !+ 0.5*(w_dqvdz_vert(k) + w_dqvdz_vert(k+1))              &
+556a782,1118
+> 
+>    SUBROUTINE wave_coupling (                                      &
+>                   qvten, thten                                     &
+>                  ,omega_wtg, znu, znw                              &
+>                  ,wavecoupling_opt                                 &  
+>                  ,wavecoupling_topbc, wavecoupling_dmpopt          & 
+>                  , phalf_avg, pfull_avg, rho_avg, z_avg, th_avg, th_v_avg, qv_avg                    & 
+>                  ,nl_bg, theta_bg, qv_bg, z_bg, th_scm_target_modellevels                            & 
+>                  ,wavenumber, wavedamping                          &  
+>                  ,qv_curr                                          &
+>                  , dt                                              &
+>                  , scm_dwdt                              &
+>                  ,ids,ide, jds,jde, kds,kde                        &
+>                  ,ims,ime, jms,jme, kms,kme                        &
+>                  ,i_start,i_end, j_start,j_end, kts,kte, num_tiles                    )
+>  
+>     USE module_model_constants
+> 
+>     USE module_dm, ONLY: wrf_dm_sum_real, wrf_dm_maxval
+>    IMPLICIT NONE
+> 
+>    INTEGER,    INTENT(IN   )    ::     ids,ide, jds,jde, kds,kde, &
+>                                        ims,ime, jms,jme, kms,kme, &
+>                                        kts,kte
+>    REAL,       DIMENSION( kms:kme ),                              &
+>                           INTENT(IN   )    ::               znu,   &
+>                                                            znw
+>    REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                 &
+>          INTENT(IN) ::        qv_curr 
+>                       ! optional moisture tracers
+>                       ! 2 time levels; if only one then use CURR
+> 
+> 
+>    INTEGER :: i,J,K,NK,jj,ij,its,ite,jts,jte
+> 
+>    INTEGER, INTENT(IN) ::    num_tiles
+> 
+>    INTEGER, DIMENSION(num_tiles), INTENT(IN) ::                       &
+>      &           i_start,i_end,j_start,j_end
+> 
+>    REAL, DIMENSION(ims:ime,kms:kme,jms:jme), INTENT(INOUT) :: thten, qvten
+> 
+>    real, DIMENSION( kms:kme), intent(in) :: z_avg, phalf_avg, pfull_avg, rho_avg, th_v_avg, th_avg, qv_avg
+>    REAL :: dt
+>     real ::  no_points, th_temp, uuu_sum
+>     real ::  dth_sum, rho_sum, qv_sum, phalf_sum, pfull_sum, z_sum, mu_sum,  mu_avg
+>     integer :: irnc, jrnc
+>     integer :: k_abovepbl_first
+>     real, DIMENSION( ims:ime , jms:jme ) :: thetaint_tmp,qvint_tmp, qvhadvint_tmp
+>     real, DIMENSION( kms:kme) :: omega_wtg
+>     real, DIMENSION( kms:kme) :: dthdeta, dqvdeta, qtend, qtend_qvhadv, qtend_avg, ttend
+>     real ::  qtend1, qtend2, domgdeta
+>     real, dimension(kms:kme) :: theta_v_prime
+> 
+>     real :: omega_p, omega_n
+>     real :: tao_time
+>     CHARACTER*1024     :: outstring
+>     CHARACTER*1024     :: wrf_err_message
+> 
+>     ! reference potential temperature profiles 
+>     integer, intent(in) :: nl_bg
+>     integer, intent(in) :: wavecoupling_opt
+>     integer, intent(in) :: wavecoupling_dmpopt ! option for damping: specify or constant or pressure depencance
+>     real, intent(in) :: wavecoupling_topbc  ! top of the wave coupling layer : meters
+>     real, intent(in) :: wavedamping, wavenumber
+>     real, DIMENSION( nl_bg), intent(in) :: theta_bg, qv_bg, z_bg
+>     real, DIMENSION( kms:kme) :: th_scm_target_modellevels
+> 
+> 
+>     ! local variables for wave coupling
+>     real, DIMENSION( kms:kme) :: dp, rhs, aa, bb, cc
+>     real, DIMENSION( 1:kme) :: theta_bg_int, qv_bg_int
+>     real, DIMENSION( 1:kme) :: wavedamping_z, wavedamping_dz ! wave damping
+>     integer :: np  !number of layers for wave coupling
+>     integer :: k2
+> 
+> 
+>     real :: cpm, evapor,rho_d,coef_tmp
+>    CHARACTER*512                :: message
+> 
+>     logical scm_dwdt
+>     
+>     !scm_dwdt = .True.
+>  
+>     !omega_wtg = 0.0
+>     !pblh_option = 2
+>     qvint_tmp = 0.0
+>     qvhadvint_tmp = 0.0
+>     thetaint_tmp = 0.0
+> 
+> 
+>     dp = 0.0;
+>     !phalf_avg = 0.0;
+>     !pfull_avg = 0.0
+>     rhs = 0.0;
+>     aa = 0.0;
+>     bb = 0.0;
+>     cc = 0.0;
+> 
+> 
+>       
+>      DO k=kts,kde-1
+>       !DO k=kts,min(kte+1,kde)
+>       !   omega_wtg(k)=0.0
+>      ENDDO
+>          k=1
+>          !print*,'z-avg', z_avg(k), wavecoupling_topbc, k, kde
+>      do k=1,kde-1
+>          !if(phalf_avg(k)<10000.0)then 
+>          if(z_avg(k)>wavecoupling_topbc)then 
+>              np=k-1
+>              exit 
+>          endif
+>          !print*,'z-avg', z_avg(k), wavecoupling_topbc, k, kde
+>      enddo
+>      do k=1,kde-1
+>      !    print*,'k=',k, z_avg(k)
+>      enddo
+>      do k=np+1, kde
+>         omega_wtg(k) = 0.0 ! above troposphere  omega_wtg is zero
+>      enddo
+> 
+>      ! ----------------------------------------------------------------------------
+>      !     compute grid spacing between midpoint levels
+>       !np=kde-1
+>       !print*,'np=',np,'p at top=', phalf_avg(np), pfull_avg(np), znu(np), znw(np), z_avg(np)
+>       do k=2,np
+>          dp(k)=phalf_avg(k)-phalf_avg(k-1)
+>       enddo
+>       dp(1)=2*(phalf_avg(1)-pfull_avg(1))
+>       dp(np+1)=2*(pfull_avg(np+1)-phalf_avg(np))
+>      !print*,'dp=',dp
+>       !dp(1)=(phalf_avg(1)-pfull_avg(1))
+>       !dp(np+1)=(phalf_avg(np+1)-phalf_avg(np))
+>       !dp(np+1)=(pfull_avg(np+1)-phalf_avg(np))
+>      
+>       !wavedamping = 1/86400.0 ! damping time scale: 1 day as in Kuang 2008 and 2010 
+>       !wavenumber = 2*pi/10000.0e3 ! wavenumber
+> 
+>       ! Interpolate theta_bg to coordinate levels:
+>       DO k = kts, kte
+>         k2 = nl_bg 
+>           !print*,'z_avg,z_bg,begin', k, k2, z_avg(k), z_bg(k2)
+>         DO WHILE( z_bg(k2) .gt. z_avg(k)  .and.  k2 .gt. 1 )
+>           !print*,'z_avg,z_bg', k, z_avg(k), z_bg(k2)
+>           k2 = k2 - 1
+>         ENDDO
+>           !print*,'z_avg,z_bg, end', k, k2, z_avg(k), z_bg(k2)
+>         if(k2+1.gt. nl_bg)then
+>           theta_bg_int(k) = theta_bg(k2) + ( theta_bg(k2) - theta_bg(k2-1) )   &
+>                               * (     z_avg(k) - z_bg(k2)   )   &
+>                               / ( z_bg(k2) - z_bg(k2-1) )
+>         else
+>           theta_bg_int(k) = theta_bg(k2) + ( theta_bg(k2+1) - theta_bg(k2) )   &
+>                               * (       z_avg(k) - z_bg(k2) )   &
+>                               / ( z_bg(k2+1) - z_bg(k2) )
+>         endif
+>        !print*,'z_bg,theta_bg=', z_bg(k), theta_bg(k),'z_avg, theta_bg_int=',theta_bg_int(k), z_avg(k)
+>        !print*,k,k2, z_bg(k2), theta_bg(k2),  z_avg(k), theta_bg_int(k) 
+>       ENDDO
+>       do k=kts,kte
+>        !print*, z_bg(k), z_avg(k), theta_bg(k),theta_bg_int(k)
+>       enddo
+> 
+> 
+>       DO k = kts, kte
+>         k2  = nl_bg
+>         DO WHILE( z_bg(k2) .gt. z_avg(k)  .and.  k2 .gt. 1 )
+>           k2 = k2 - 1
+>         ENDDO
+>         if(k2+1.gt.nl_bg)then
+>           qv_bg_int(k) = qv_bg(k2) + ( qv_bg(k2) - qv_bg(k2-1) )   &
+>                               * (     z_avg(k) - z_bg(k2)   )   &
+>                               / ( z_bg(k2) - z_bg(k2-1) )
+>         else
+>           qv_bg_int(k) = qv_bg(k2) + ( qv_bg(k2+1) - qv_bg(k2) )   &
+>                               * (       z_avg(k) - z_bg(k2) )   &
+>                               / ( z_bg(k2+1) - z_bg(k2) )
+>         endif
+>         qv_bg_int(k) = qv_bg_int(k)*1e-3;
+>         !qv_bg_int(k) = qv_avg(k);
+>        !print*,k,k2, z_bg(k2), qv_bg(k2),  z_avg(k), qv_bg_int(k) 
+>       ENDDO
+> 
+>       DO k = kts, kte 
+>       if(wavecoupling_dmpopt==1)then
+>            wavedamping_z (k) = wavedamping
+>            wavedamping_dz (k) = 0
+>       elseif(wavecoupling_dmpopt==2)then
+>            wavedamping_z (k) = wavedamping * phalf_avg(k)/1.0e5
+>            wavedamping_dz (k) = wavedamping /1.0e5
+>       else
+>            WRITE(wrf_err_message,*) ' wrong option for wavecoupling_dmpopt: 1 or 2'
+>            CALL wrf_error_fatal(TRIM(wrf_err_message))
+>       endif
+>       ENDDO
+> 
+>       !     Gauss Elimination
+>       rhs=0.
+>       do k=1,np
+>          if(wavecoupling_opt==2.or.wavecoupling_opt==22.or.wavecoupling_opt==42.or.wavecoupling_opt==-1000)then
+>             theta_v_prime(k) = th_v_avg(k)-theta_bg_int(k)*(1+0.608*qv_bg_int(k))
+>          elseif(wavecoupling_opt==3.or.wavecoupling_opt==33)then
+>             theta_v_prime(k) = th_scm_target_modellevels(k)
+>          endif
+>          rhs(k)=wavenumber*wavenumber/wavedamping_z(k)*R_d*theta_v_prime(k)*(phalf_avg(k)/1.e5)**(R_d/Cp)/phalf_avg(k)*dp(k)*dp(k+1)*0.5
+>          !rhs(k)=wavenumber*wavenumber/wavedamping*(1e5/phalf_avg(k))*R_d*(th_v_avg(k)-theta_bg_int(k))*(phalf_avg(k)/1.e5)**(R_d/Cp)/phalf_avg(k)*dp(k)*dp(k+1)*0.5
+>          !rhs(k)=wavenumber*wavenumber*R_d*(tv_avg(k)-tvirtual_bg(k))/pfull_avg(k)*dp(k)*dp(k+1)*0.5 ! see equation (A.8) in Blossy 2009
+>          !print*,'k,prime', th_v_avg(k), theta_bg_int(k)*(1+0.608*qv_bg_int(k)), theta_v_prime
+>       enddo
+>      
+>  
+>       !     set up the tridiagonal matrix
+>       do k=1,np
+>          aa(k)=dp(k+1)/(dp(k)+dp(k+1))
+>          bb(k)=-1.;
+>          cc(k)=dp(k)/(dp(k)+dp(k+1))
+>       enddo
+>       do k=1,np
+>          aa(k)=dp(k+1)/(dp(k)+dp(k+1))  -dp(k+1)*0.5*wavedamping_dz(k)/wavedamping_z(k)
+>          bb(k)=-1.  +(dp(k+1)-dp(k))*0.5*wavedamping_dz(k)/wavedamping_z(k)
+>          cc(k)=dp(k)/(dp(k)+dp(k+1))  +dp(k)*0.5*wavedamping_dz(k)/wavedamping_z(k)
+>       enddo
+>       
+>       !     symmetric lower BC
+>       aa(1)=0.;
+>       bb(1)=-(2*dp(2)+dp(1))/(dp(1)+dp(2))  -dp(1)*0.5*wavedamping_dz(1)/wavedamping_z(1)
+>       cc(1) = dp(k)/(dp(k)+dp(k+1))  +dp(1)*0.5*wavedamping_dz(2) /wavedamping_z(1)
+>       !     symmetric upper BC
+>       aa(np)=dp(np+1)/(dp(np)+dp(np+1))  -dp(np+1)*0.5*wavedamping_dz(np)/wavedamping_z(np)
+>       bb(np) = -(2*dp(np)+dp(np+1))/(dp(np)+dp(np+1))  +dp(np+1)*0.5*wavedamping_dz(np)/wavedamping_z(np)
+>       !bb(np) = -1 
+>       cc(np) = 0.
+> 
+> !      print*,'k,a,b,c,rhs='
+> !      do k=1,np+1
+> !      print*,k,aa(k),bb(k),cc(k),rhs(k)
+> !      enddo
+>       
+>       !     Gaussian Elimination without pivoting
+>       do k=1,np-1
+>          bb(k+1)=bb(k+1)-aa(k+1)/bb(k)*cc(k)
+>          rhs(k+1)=rhs(k+1)-aa(k+1)/bb(k)*rhs(k)
+>       enddo
+>       !    Backward substitution
+>       rhs(np)=rhs(np)/bb(np)
+>       do k= np-1,1,-1
+>          rhs(k)=(rhs(k)-cc(k)*rhs(k+1))/bb(k)
+>       end do
+>      
+>       if(scm_dwdt)then
+>          do k=1,np
+>            omega_wtg(k) = omega_wtg(k) + wavedamping_z(k)*(-omega_wtg(k)+rhs(k))*dt
+>          enddo
+>       else 
+>         do k=1,np
+>            omega_wtg(k)=rhs(k)  ! omega, this is pressure velocity!!
+>         enddo
+>       endif
+> 
+>       if(1==0)then 
+>       do k=1,np
+>          !print*,'k,prime', th_v_avg(k), theta_bg_int(k)*(1+0.608*qv_bg_int(k)), theta_v_prime
+>        WRITE( message, '(i4,5f12.5)' ) k, th_v_avg(k), theta_bg_int(k)*(1+0.608*qv_bg_int(k)), theta_v_prime(k), z_avg(k), -omega_wtg(k)/rho_avg(k)/9.81 
+>        CALL wrf_message (  message )
+>          !print*,'omega_wtg=',k, z_avg(k), -omega_wtg(k)/rho_avg(k)/9.81
+>       enddo
+>       endif
+>      ! ----------------------------------------------------------------------------
+> 
+>       DO k=kts,kde-1
+>          qv_sum = 0.0
+>          qtend(k) = 0.0 
+>          ttend(k) = 0.0 
+>          if(k>1.and.k<kde-1)then
+>                     omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                     omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0) 
+>                     qtend2 = omega_p*(qv_bg_int(k+1) - qv_bg_int(k))/(phalf_avg(k+1)-phalf_avg(k)) 
+>                     qtend1 = omega_n*(qv_bg_int(k) - qv_bg_int(k-1)) /(phalf_avg(k)-phalf_avg(k-1))
+>                     qtend(k) = (qtend1+qtend2)
+>          elseif(k==kde-1)then
+>                     omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0) 
+>                     qtend1 = omega_n*(qv_bg_int(k) - qv_bg_int(k-1)) /(phalf_avg(k)-phalf_avg(k-1))
+>                     qtend(k) = qtend1
+>          elseif(k==1)then
+>                     omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                     qtend2 = omega_p*(qv_bg_int(k+1) - qv_bg_int(k))/(phalf_avg(k+1)-phalf_avg(k)) 
+>                     qtend(k) = qtend2
+>          endif
+> 
+>          if(k>1.and.k<kde-1)then
+>                     omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                     omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0) 
+>                     qtend2 = omega_p*(theta_bg_int(k+1) - theta_bg_int(k))/(phalf_avg(k+1)-phalf_avg(k)) 
+>                     qtend1 = omega_n*(theta_bg_int(k) - theta_bg_int(k-1)) /(phalf_avg(k)-phalf_avg(k-1))
+>                     ttend(k) = (qtend1+qtend2)
+>                     !ttend(k) =0.25*(omega_wtg(k+1)+omega_wtg(k))*(th_avg(k+1) - th_avg(k))/(phalf_avg(k+1)-phalf_avg(k)) +  &
+>                     !          0.25*    (omega_wtg(k)+omega_wtg(k-1))*(th_avg(k) - th_avg(k-1))/(phalf_avg(k)-phalf_avg(k-1))
+>                     !ttend(k) =0.25*(omega_wtg(k+1)+omega_wtg(k))*(theta_bg_int(k+1) - theta_bg_int(k))/(phalf_avg(k+1)-phalf_avg(k)) +  &
+>                     !          0.25*    (omega_wtg(k)+omega_wtg(k-1))*(theta_bg_int(k) - theta_bg_int(k-1))/(phalf_avg(k)-phalf_avg(k-1))
+>          elseif(k==kde-1)then
+>                     omega_n = min((omega_wtg(k-1)+omega_wtg(k))*0.5, 0.0) 
+>                     qtend1 = omega_n*(theta_bg_int(k) - theta_bg_int(k-1)) /(phalf_avg(k)-phalf_avg(k-1))
+>                     !qtend1 = 0.25*(omega_wtg(k)+omega_wtg(k-1))*(th_avg(k)-th_avg(k-1))/(phalf_avg(k)-phalf_avg(k-1)) 
+>                     !qtend1 = 0.25*(omega_wtg(k)+omega_wtg(k-1))*(theta_bg_int(k)-theta_bg_int(k-1))/(phalf_avg(k)-phalf_avg(k-1)) 
+>                     ttend(k) = qtend1
+>          elseif(k==1)then
+>                     omega_p = max((omega_wtg(k+1)+omega_wtg(k))*0.5, 0.0)
+>                     qtend2 = omega_p*(theta_bg_int(k+1) - theta_bg_int(k))/(phalf_avg(k+1)-phalf_avg(k)) 
+>                     !qtend2 = 0.25*(omega_wtg(k+1)+omega_wtg(k))*(th_avg(k+1)-th_avg(k))/(phalf_avg(k+1)-phalf_avg(k)) 
+>                     !qtend2 = 0.25*(omega_wtg(k+1)+omega_wtg(k))*(theta_bg_int(k+1)-theta_bg_int(k))/(phalf_avg(k+1)-phalf_avg(k)) 
+>                     ttend(k) = qtend2
+>          endif
+>              
+> 
+>         
+>          DO ij = 1 , num_tiles; 
+>               DO j=j_start(ij),j_end(ij);   DO i=i_start(ij),i_end(ij)
+>                  qvten(i,k,j) = qvten (i,k,j) - qtend(k)
+>                  thten(i,k,j) = thten(i,k,j) - ttend(k)
+>                  ! qvten(i,k,j) = qvten(i,k,j) - qtend(k)
+>                  ! thten(i,k,j) = thten(i,k,j) - ttend(k)
+> 
+>                  !qvint_tmp(i,j) = qvint_tmp(i,j) + qtend(k)*(znw(k+1)-znw(k))
+>                  cpm = cp * (1. + 0.8 * qv_curr(i,k,j))
+>                  !evapor = p_phy(i,k,j)*r_v*qv_curr(i,k,j)/(r_d+r_v*qv_curr(i,k,j))
+>                  !rho_d = (p_phy(i,k,j)-evapor)/t_phy(i,k,j)/r_d
+>                  !coef_tmp = cpm*rho(i,k,j)/rho_d* pi_phy(i,k,j)*(-1.0)*(znw(k+1)-znw(k))
+>                  !thetaint_tmp(i,j) = thetaint_tmp(i,j) - coef_tmp*(th_avg(k)-th_rce(k))/(tao_time*3600.0)
+>             ENDDO; ENDDO
+>             !print*,'ij=',ij, 'i',i_start(ij),i_end(ij), 'j=',j_start(ij),j_end(ij)
+>          ENDDO
+>      
+>      ENDDO
+> 
+>    END SUBROUTINE wave_coupling
+> 

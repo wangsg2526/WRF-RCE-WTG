@@ -1,0 +1,196 @@
+module_alloc_space_0.f90:1154:IF(in_use_for_config(id,'xlat_gc').AND.(.NOT.grid%is_intermediate))THEN
+module_alloc_space_0.f90:1157:  ALLOCATE(grid%xlat_gc(sm31:em31,sm33:em33),STAT=ierr)
+module_alloc_space_0.f90:1160:    'frame/module_domain.f: Failed to allocate grid%xlat_gc(sm31:em31,sm33:em33). ')
+module_alloc_space_0.f90:1162:  IF ( setinitval .EQ. 1 .OR. setinitval .EQ. 3 ) grid%xlat_gc=initial_data_value
+module_alloc_space_0.f90:1167:  grid%tail_statevars%VarName = 'xlat_gc'
+module_alloc_space_0.f90:1168:  grid%tail_statevars%DataName = 'XLAT_M'
+module_alloc_space_0.f90:1179:  grid%tail_statevars%rfield_2d => grid%xlat_gc
+module_alloc_space_0.f90:1207:  ALLOCATE(grid%xlat_gc(1,1),STAT=ierr)
+module_alloc_space_0.f90:1210:    'frame/module_domain.f: Failed to allocate grid%xlat_gc(1,1).  ')
+module_alloc_space_1.f90:25221:IF(in_use_for_config(id,'xlat'))THEN
+module_alloc_space_1.f90:25224:  ALLOCATE(grid%xlat(sm31:em31,sm33:em33),STAT=ierr)
+module_alloc_space_1.f90:25227:    'frame/module_domain.f: Failed to allocate grid%xlat(sm31:em31,sm33:em33). ')
+module_alloc_space_1.f90:25229:  IF ( setinitval .EQ. 1 .OR. setinitval .EQ. 3 ) grid%xlat=initial_data_value
+module_alloc_space_1.f90:25234:  grid%tail_statevars%VarName = 'xlat'
+module_alloc_space_1.f90:25235:  grid%tail_statevars%DataName = 'XLAT'
+module_alloc_space_1.f90:25246:  grid%tail_statevars%rfield_2d => grid%xlat
+module_alloc_space_1.f90:25274:  ALLOCATE(grid%xlat(1,1),STAT=ierr)
+module_alloc_space_1.f90:25277:    'frame/module_domain.f: Failed to allocate grid%xlat(1,1).  ')
+module_alloc_space_1.f90:25339:IF(in_use_for_config(id,'xlat_u'))THEN
+module_alloc_space_1.f90:25342:  ALLOCATE(grid%xlat_u(sm31:em31,sm33:em33),STAT=ierr)
+module_alloc_space_1.f90:25345:    'frame/module_domain.f: Failed to allocate grid%xlat_u(sm31:em31,sm33:em33). ')
+module_alloc_space_1.f90:25347:  IF ( setinitval .EQ. 1 .OR. setinitval .EQ. 3 ) grid%xlat_u=initial_data_value
+module_alloc_space_1.f90:25352:  grid%tail_statevars%VarName = 'xlat_u'
+module_alloc_space_1.f90:25353:  grid%tail_statevars%DataName = 'XLAT_U'
+module_alloc_space_1.f90:25364:  grid%tail_statevars%rfield_2d => grid%xlat_u
+module_alloc_space_1.f90:25392:  ALLOCATE(grid%xlat_u(1,1),STAT=ierr)
+module_alloc_space_1.f90:25395:    'frame/module_domain.f: Failed to allocate grid%xlat_u(1,1).  ')
+module_alloc_space_1.f90:25457:IF(in_use_for_config(id,'xlat_v'))THEN
+module_alloc_space_1.f90:25460:  ALLOCATE(grid%xlat_v(sm31:em31,sm33:em33),STAT=ierr)
+module_alloc_space_1.f90:25463:    'frame/module_domain.f: Failed to allocate grid%xlat_v(sm31:em31,sm33:em33). ')
+module_alloc_space_1.f90:25465:  IF ( setinitval .EQ. 1 .OR. setinitval .EQ. 3 ) grid%xlat_v=initial_data_value
+module_alloc_space_1.f90:25470:  grid%tail_statevars%VarName = 'xlat_v'
+module_alloc_space_1.f90:25471:  grid%tail_statevars%DataName = 'XLAT_V'
+module_alloc_space_1.f90:25482:  grid%tail_statevars%rfield_2d => grid%xlat_v
+module_alloc_space_1.f90:25510:  ALLOCATE(grid%xlat_v(1,1),STAT=ierr)
+module_alloc_space_1.f90:25513:    'frame/module_domain.f: Failed to allocate grid%xlat_v(1,1).  ')
+module_alloc_space_5.f90:1997:IF(in_use_for_config(id,'fxlat').AND.(.NOT.grid%is_intermediate))THEN
+module_alloc_space_5.f90:2000:  ALLOCATE(grid%fxlat((sm31-1)*sr_x+1:em31*sr_x,(sm33-1)*sr_y+1:em33*sr_y),STAT=ierr)
+module_alloc_space_5.f90:2003:    'frame/module_domain.f: Failed to allocate grid%fxlat((sm31-1)*sr_x+1:em31*sr_x,(sm33-1)*sr_y+1:em33*sr_y). ')
+module_alloc_space_5.f90:2005:  IF ( setinitval .EQ. 1 .OR. setinitval .EQ. 3 ) grid%fxlat=initial_data_value
+module_alloc_space_5.f90:2010:  grid%tail_statevars%VarName = 'fxlat'
+module_alloc_space_5.f90:2011:  grid%tail_statevars%DataName = 'FXLAT'
+module_alloc_space_5.f90:2022:  grid%tail_statevars%rfield_2d => grid%fxlat
+module_alloc_space_5.f90:2050:  ALLOCATE(grid%fxlat(1,1),STAT=ierr)
+module_alloc_space_5.f90:2053:    'frame/module_domain.f: Failed to allocate grid%fxlat(1,1).  ')
+module_comm_dm_0.f90:1535:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:1537: grid%xlat, 3,&
+module_comm_dm_0.f90:1557:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:1559: grid%xlat_u, 3,&
+module_comm_dm_0.f90:1568:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:1570: grid%xlat_v, 3,&
+module_comm_dm_0.f90:1801:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:1803: grid%xlat, 3,&
+module_comm_dm_0.f90:1823:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:1825: grid%xlat_u, 3,&
+module_comm_dm_0.f90:1834:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:1836: grid%xlat_v, 3,&
+module_comm_dm_0.f90:2082:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:2084: grid%xlat, 3,&
+module_comm_dm_0.f90:2104:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:2106: grid%xlat_u, 3,&
+module_comm_dm_0.f90:2115:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:2117: grid%xlat_v, 3,&
+module_comm_dm_0.f90:2348:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:2350: grid%xlat, 3,&
+module_comm_dm_0.f90:2370:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:2372: grid%xlat_u, 3,&
+module_comm_dm_0.f90:2381:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_dm_0.f90:2383: grid%xlat_v, 3,&
+module_comm_dm_3.f90:2657:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_3.f90:2659: grid%xlat, 2,&
+module_comm_dm_3.f90:2681:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_3.f90:2683: grid%xlat, 2,&
+module_comm_dm_3.f90:2719:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_3.f90:2721: grid%xlat, 2,&
+module_comm_dm_3.f90:2743:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_dm_3.f90:2745: grid%xlat, 2,&
+module_comm_nesting_dm.f90:3390:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:3392: grid%xlat, 4,&
+module_comm_nesting_dm.f90:3412:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:3414: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:3434:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:3436: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:7793:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:7795: grid%xlat, 4,&
+module_comm_nesting_dm.f90:7815:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:7817: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:7837:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:7839: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:12225:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:12227: grid%xlat, 4,&
+module_comm_nesting_dm.f90:12247:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:12249: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:12269:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:12271: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:16628:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:16630: grid%xlat, 4,&
+module_comm_nesting_dm.f90:16650:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:16652: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:16672:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:16674: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:20794:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:20796: grid%xlat, 4,&
+module_comm_nesting_dm.f90:20816:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:20818: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:20838:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:20840: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:24788:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:24790: grid%xlat, 4,&
+module_comm_nesting_dm.f90:24810:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:24812: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:24832:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:24834: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:28810:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:28812: grid%xlat, 4,&
+module_comm_nesting_dm.f90:28832:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:28834: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:28854:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:28856: grid%xlat_v, 4,&
+module_comm_nesting_dm.f90:32804:IF ( SIZE(grid%xlat,1)*SIZE(grid%xlat,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:32806: grid%xlat, 4,&
+module_comm_nesting_dm.f90:32826:IF ( SIZE(grid%xlat_u,1)*SIZE(grid%xlat_u,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:32828: grid%xlat_u, 4,&
+module_comm_nesting_dm.f90:32848:IF ( SIZE(grid%xlat_v,1)*SIZE(grid%xlat_v,2) .GT. 1 ) THEN
+module_comm_nesting_dm.f90:32850: grid%xlat_v, 4,&
+module_configure.f90:13810:IF(TRIM(vname).EQ.'xlat_gc')THEN
+module_configure.f90:13874:IF(TRIM(vname).EQ.'xlat_gc')THEN
+module_configure.f90:23175:IF(TRIM(vname).EQ.'fxlat')THEN
+module_dm.f90:3914:IF ( SIZE(grid%xlat) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:3916:grid%xlat(pig,pjg) = xv(1)
+module_dm.f90:3922:IF ( SIZE(grid%xlat_u) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:3924:grid%xlat_u(pig,pjg) = xv(1)
+module_dm.f90:3930:IF ( SIZE(grid%xlat_v) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:3932:grid%xlat_v(pig,pjg) = xv(1)
+module_dm.f90:6548:IF ( SIZE(grid%xlat) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:6549:xv(1)=grid%xlat(pig,pjg)
+module_dm.f90:6556:IF ( SIZE(grid%xlat_u) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:6557:xv(1)=grid%xlat_u(pig,pjg)
+module_dm.f90:6564:IF ( SIZE(grid%xlat_v) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:6565:xv(1)=grid%xlat_v(pig,pjg)
+module_dm.f90:8583:IF ( SIZE(grid%xlat) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:8585:grid%xlat(pig,pjg) = xv(1)
+module_dm.f90:8591:IF ( SIZE(grid%xlat_u) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:8593:grid%xlat_u(pig,pjg) = xv(1)
+module_dm.f90:8599:IF ( SIZE(grid%xlat_v) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:8601:grid%xlat_v(pig,pjg) = xv(1)
+module_dm.f90:12731:IF ( SIZE( grid%xlat, 1 ) * SIZE( grid%xlat, 2 ) .GT. 1 ) THEN 
+module_dm.f90:12733:                  grid%xlat,   &       ! CD field
+module_dm.f90:12737:                  ngrid%xlat,  &   ! ND field
+module_dm.f90:12763:IF ( SIZE( grid%xlat_u, 1 ) * SIZE( grid%xlat_u, 2 ) .GT. 1 ) THEN 
+module_dm.f90:12765:                  grid%xlat_u,   &       ! CD field
+module_dm.f90:12769:                  ngrid%xlat_u,  &   ! ND field
+module_dm.f90:12795:IF ( SIZE( grid%xlat_v, 1 ) * SIZE( grid%xlat_v, 2 ) .GT. 1 ) THEN 
+module_dm.f90:12797:                  grid%xlat_v,   &       ! CD field
+module_dm.f90:12801:                  ngrid%xlat_v,  &   ! ND field
+module_dm.f90:19995:IF ( SIZE( grid%xlat, 1 ) * SIZE( grid%xlat, 2 ) .GT. 1 ) THEN 
+module_dm.f90:19997:                  grid%xlat,   &       ! CD field
+module_dm.f90:20001:                  ngrid%xlat,  &   ! ND field
+module_dm.f90:20027:IF ( SIZE( grid%xlat_u, 1 ) * SIZE( grid%xlat_u, 2 ) .GT. 1 ) THEN 
+module_dm.f90:20029:                  grid%xlat_u,   &       ! CD field
+module_dm.f90:20033:                  ngrid%xlat_u,  &   ! ND field
+module_dm.f90:20059:IF ( SIZE( grid%xlat_v, 1 ) * SIZE( grid%xlat_v, 2 ) .GT. 1 ) THEN 
+module_dm.f90:20061:                  grid%xlat_v,   &       ! CD field
+module_dm.f90:20065:                  ngrid%xlat_v,  &   ! ND field
+module_dm.f90:24195:IF ( SIZE(grid%xlat) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:24196:xv(1)= intermediate_grid%xlat(pig,pjg)
+module_dm.f90:24203:IF ( SIZE(grid%xlat_u) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:24204:xv(1)= intermediate_grid%xlat_u(pig,pjg)
+module_dm.f90:24211:IF ( SIZE(grid%xlat_v) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:24212:xv(1)= intermediate_grid%xlat_v(pig,pjg)
+module_dm.f90:26240:IF ( SIZE(grid%xlat) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:26243:grid%xlat(pig,pjg) = xv(1)
+module_dm.f90:26252:IF ( SIZE(grid%xlat_u) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:26255:grid%xlat_u(pig,pjg) = xv(1)
+module_dm.f90:26264:IF ( SIZE(grid%xlat_v) .GT. 1 ) THEN ! okay for intermediate_grid too. see comment in gen_comms.c
+module_dm.f90:26267:grid%xlat_v(pig,pjg) = xv(1)
+module_domain.f90:1334:IF ( ASSOCIATED( grid%xlat_gc ) ) THEN
+module_domain.f90:1335:  DEALLOCATE(grid%xlat_gc,STAT=ierr)
+module_domain.f90:1338:'frame/module_domain.f: Failed to deallocate grid%xlat_gc. ')
+module_domain.f90:7372:IF ( ASSOCIATED( grid%xlat ) ) THEN
+module_domain.f90:7373:  DEALLOCATE(grid%xlat,STAT=ierr)
+module_domain.f90:7376:'frame/module_domain.f: Failed to deallocate grid%xlat. ')
+module_domain.f90:7386:IF ( ASSOCIATED( grid%xlat_u ) ) THEN
+module_domain.f90:7387:  DEALLOCATE(grid%xlat_u,STAT=ierr)
+module_domain.f90:7390:'frame/module_domain.f: Failed to deallocate grid%xlat_u. ')
+module_domain.f90:7400:IF ( ASSOCIATED( grid%xlat_v ) ) THEN
+module_domain.f90:7401:  DEALLOCATE(grid%xlat_v,STAT=ierr)
+module_domain.f90:7404:'frame/module_domain.f: Failed to deallocate grid%xlat_v. ')
+module_domain.f90:9612:IF ( ASSOCIATED( grid%fxlat ) ) THEN
+module_domain.f90:9613:  DEALLOCATE(grid%fxlat,STAT=ierr)
+module_domain.f90:9616:'frame/module_domain.f: Failed to deallocate grid%fxlat. ')
+module_domain_type.f90:2219:real ,DIMENSION(:,:) ,POINTER :: xlat_gc
+module_domain_type.f90:3069:real ,DIMENSION(:,:) ,POINTER :: xlat
+module_domain_type.f90:3071:real ,DIMENSION(:,:) ,POINTER :: xlat_u
+module_domain_type.f90:3073:real ,DIMENSION(:,:) ,POINTER :: xlat_v
+module_domain_type.f90:3372:real ,DIMENSION(:,:) ,POINTER :: fxlat

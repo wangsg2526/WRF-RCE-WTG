@@ -1,0 +1,406 @@
+!
+
+
+MODULE module_wtg_driver0
+CONTAINS
+
+!------------------------------------------------------------------
+   SUBROUTINE wtg_driver0(                                          &
+                  itimestep,dt,u_frame,v_frame                     &
+                 ,bldt,curr_secs,adapt_step_flag                   &
+                 ,rublten,rvblten,rthblten                         &
+                 ,tsk,xland,znt,ht                                 &
+!SW==
+                 ,omega_wtg, the_wtg_forcing, qv_wtg_forcing       &
+                 ,qv_wtg_hadv_forcing                              &
+                 , qv_avg_flag                                     &                       
+                 , qadv_flag, qadv_tau,qforcing_tau, qadv_plev_up,qadv_plev_dn, qadv_popt        &
+                 ,th_rce,  rce_wtg_flag, tao_time, rce_wtg_diag    &
+                 ,qv_rce, qv_hadv_flag                             &
+                 ,pblh_opt, relax_umean_opt                        &
+                 ,relax_umean_u, relax_umean_tscale                &
+                 ,rqvwtgten,rthwtgten                              &
+                 ,acqvwtg, acqvhadvwtg                             &
+                 ,actwtg                              &
+! shear variables
+                 ,shear_opt, shear_relax_tscale       &
+                 ,shear_u_top, shear_u_sfc, shear_depth, shear_bot &
+                 ,shear_u_profile &
+! for wave coupling
+                 ,wavecoupling_opt                   &
+                 ,wave_ztop                   &
+                 ,nl_bg, theta_bg, qv_bg, z_bg              &
+                 ,wavenumber, wavedamping            &
+                 ,pblh                       &
+                 !,ust,pblh                       &
+                 !,ust,pblh,hfx,qfx                       &
+                 !,ust,pblh,hfx,qfx,grdflx                          &
+                 ,u_phy,v_phy,th_phy,rho                           &
+                 ,p_phy,pi_phy,p8w,t_phy,dz8w,z                    &
+                 ,exch_h,exch_m,akhs,akms           &
+                 !,akhs,akms           &
+                 !,thz0,qz0,uz0,vz0,qsfc                          &
+                 ,thz0,qz0,uz0,vz0,qsfc,f                          &
+                 ,lowlyr,u10,v10                                   &
+                 ,psim,psih,gz1oz0, wspd,br,chklowq                &
+                 ,bl_pbl_physics, ra_lw_physics, dx                &
+                 ,stepbl,warm_rain                                 &
+                 ,kpbl,mixht,ct,lh,snow,xice                       &
+                 ,znu, znw, mut, p_top                             &
+                 ,ids,ide, jds,jde, kds,kde                        &
+                 ,ims,ime, jms,jme, kms,kme                        &
+                 ,i_start,i_end, j_start,j_end, kts,kte, num_tiles &
+             ! Optional
+             !    ,hol, mol, regime                                 &
+             !  Optional moisture tracers
+                 ,qv_curr, qc_curr, qr_curr                        &
+                 ,qi_curr, qs_curr, qg_curr                        &
+                 ,rqvblten,rqcblten                       &
+             !  Optional moisture tracer flags
+                 ,f_qv,f_qc,f_qr                                   &
+                 ,f_qi,f_qs,f_qg                                   &
+                 ,sf_sfclay_physics,sf_urban_physics         &
+                                                                     )       
+!------------------------------------------------------------------
+   USE module_state_description, ONLY :                            &
+                   YSUSCHEME
+
+   USE module_model_constants
+
+
+!SW==
+    USE module_dm, ONLY: wrf_dm_sum_real, wrf_dm_maxval
+!SW==
+   !
+!------------------------------------------------------------------
+   IMPLICIT NONE
+!======================================================================
+! Grid structure in physics part of WRF
+!----------------------------------------------------------------------
+! The horizontal velocities used in the physics are unstaggered
+! relative to temperature/moisture variables. All predicted
+! variables are carried at half levels except w, which is at full
+! levels. Some arrays with names (*8w) are at w (full) levels.
+!
+!----------------------------------------------------------------------
+! In WRF, kms (smallest number) is the bottom level and kme (largest
+! number) is the top level.  In your scheme, if 1 is at the top level,
+! then you have to reverse the order in the k direction.
+!
+!         kme      -   half level (no data at this level)
+!         kme    ----- full level
+!         kme-1    -   half level
+!         kme-1  ----- full level
+!         .
+!         .
+!         .
+!         kms+2    -   half level
+!         kms+2  ----- full level
+!         kms+1    -   half level
+!         kms+1  ----- full level
+!         kms      -   half level
+!         kms    ----- full level
+!
+!======================================================================
+! Definitions
+!-----------
+! Rho_d      dry density (kg/m^3)
+! Theta_m    moist potential temperature (K)
+! Qv         water vapor mixing ratio (kg/kg)
+! Qc         cloud water mixing ratio (kg/kg)
+! Qr         rain water mixing ratio (kg/kg)
+! Qi         cloud ice mixing ratio (kg/kg)
+! Qs         snow mixing ratio (kg/kg)
+!-----------------------------------------------------------------
+!-- RUBLTEN       U tendency due to 
+!                 PBL parameterization (m/s^2)
+!-- RVBLTEN       V tendency due to 
+!                 PBL parameterization (m/s^2)
+!-- RTHBLTEN      Theta tendency due to 
+!                 PBL parameterization (K/s)
+!-- RQVBLTEN      Qv tendency due to 
+!                 PBL parameterization (kg/kg/s)
+!-- RQCBLTEN      Qc tendency due to 
+!                 PBL parameterization (kg/kg/s)
+!-- RQIBLTEN      Qi tendency due to 
+!                 PBL parameterization (kg/kg/s)
+!-- itimestep     number of time steps
+!
+!-- P_QV          species index for water vapor
+!-- P_QC          species index for cloud water
+!-- P_QR          species index for rain water
+!-- P_QI          species index for cloud ice
+!-- P_QS          species index for snow
+!-- P_QG          species index for graupel
+!-- ids           start index for i in domain
+!-- ide           end index for i in domain
+!-- jds           start index for j in domain
+!-- jde           end index for j in domain
+!-- kds           start index for k in domain
+!-- kde           end index for k in domain
+!-- ims           start index for i in memory
+!-- ime           end index for i in memory
+!-- jms           start index for j in memory
+!-- jme           end index for j in memory
+!-- kms           start index for k in memory
+!-- kme           end index for k in memory
+!-- jts           start index for j in tile
+!-- jte           end index for j in tile
+!-- kts           start index for k in tile
+!-- kte           end index for k in tile
+!
+!******************************************************************
+!------------------------------------------------------------------ 
+!
+
+
+   INTEGER,    INTENT(IN   )    ::     bl_pbl_physics, ra_lw_physics,sf_sfclay_physics,sf_urban_physics
+   !INTEGER,    INTENT(IN   )    ::     bl_pbl_physics, ra_lw_physics,sf_sfclay_physics,sf_urban_physics
+
+   INTEGER,    INTENT(IN   )    ::     ids,ide, jds,jde, kds,kde, &
+                                       ims,ime, jms,jme, kms,kme, &
+                                       kts,kte, num_tiles
+
+   INTEGER, DIMENSION(num_tiles), INTENT(IN) ::                   &
+  &                                    i_start,i_end,j_start,j_end
+
+   INTEGER,    INTENT(IN   )    ::     itimestep,STEPBL
+   INTEGER,    DIMENSION( ims:ime , jms:jme ),                    &
+               INTENT(IN   )    ::                        LOWLYR
+!
+   LOGICAL,      INTENT(IN   )    ::   warm_rain
+
+   REAL,       DIMENSION( kms:kme ),                              &
+               INTENT(IN   )    ::               znu,   &
+                                                           znw
+!
+   REAL,       INTENT(IN   )    ::     DT,DX
+   REAL,       INTENT(IN   )    ::     bldt
+   REAL,       INTENT(IN   )    ::     curr_secs
+   LOGICAL,    INTENT(IN   )    ::     adapt_step_flag
+
+!
+   REAL,       DIMENSION( ims:ime, kms:kme, jms:jme ),            &
+               INTENT(IN   )    ::                         p_phy, &
+                                                          pi_phy, &
+                                                             p8w, &
+                                                             rho, &
+                                                           t_phy, &
+                                                           u_phy, &
+                                                           v_phy, &
+                                                            dz8w, &
+                                                               z, &
+                                                          th_phy
+!
+!
+   REAL,       DIMENSION( ims:ime , jms:jme ),                    &
+               INTENT(IN   )    ::                         XLAND, &
+                                                              HT, &
+                                                            PSIM, &
+                                                            PSIH, &
+                                                          GZ1OZ0, &
+                                                              BR, &
+                                                               F, &
+                                                         CHKLOWQ
+
+!
+   REAL,       DIMENSION( ims:ime, jms:jme )                    , &
+               INTENT(INOUT)    ::                           TSK, &
+                                                           !  UST, &
+                                                            PBLH, &
+                                                            ! HFX,QFX, &
+                                                            ! GRDFLX, &
+                                                             ZNT, &
+                                                            QSFC, &
+                                                            AKHS, &
+                                                            AKMS, &
+                                                           MIXHT, &
+                                                             QZ0, &
+                                                            THZ0, &
+                                                             UZ0, &
+                                                             VZ0, &
+                                                              CT, &
+                                                             U10, &
+                                                             V10, &
+                                                            WSPD
+
+!
+   REAL,       DIMENSION( ims:ime, kms:kme, jms:jme ),            &
+               INTENT(INOUT)    ::                       RUBLTEN, &
+                                                         RVBLTEN, &
+                                                  EXCH_H,EXCH_M, &
+                                                        RTHBLTEN
+   REAL,       DIMENSION( ims:ime, jms:jme ),             &
+              INTENT(INOUT)    ::        acqvwtg, acqvhadvwtg, actwtg
+
+
+   
+   
+
+
+
+!
+
+   REAL ,                             INTENT(IN   )  ::  u_frame, &
+                                                         v_frame
+!
+
+   INTEGER,    DIMENSION( ims:ime , jms:jme ),                    &
+               INTENT(INOUT) ::                             KPBL
+
+   REAL,       DIMENSION( ims:ime , jms:jme ),                    &
+               INTENT(IN)    :: XICE, SNOW, LH
+
+ 
+! Bep changes end
+
+!
+!
+! Optional
+!
+!
+! Flags relating to the optional tendency arrays declared above
+! Models that carry the optional tendencies will provdide the
+! optional arguments at compile time; these flags all the model
+! to determine at run-time whether a particular tracer is in
+! use or not.
+!
+   LOGICAL, INTENT(IN)  ::                             &
+                                                      f_qv      &
+                                                     ,f_qc      &
+                                                     ,f_qr      &
+                                                     ,f_qi      &
+                                                     ,f_qs      &
+                                                     ,f_qg
+
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                 &
+          INTENT(INOUT) ::                              &
+                      ! optional moisture tracers
+                      ! 2 time levels; if only one then use CURR
+                      qv_curr, qc_curr, qr_curr                  &
+                     ,qi_curr, qs_curr, qg_curr                  &
+                     ,rqvblten,rqcblten
+
+!   REAL,       DIMENSION( ims:ime, jms:jme )                    , &
+!               INTENT(INOUT)    ::                           HOL, &
+!                                                             MOL, &
+!                                                          REGIME
+   REAL,       DIMENSION( ims:ime, jms:jme )                    , &
+               INTENT(IN)    ::                           mut
+!
+   REAL,       INTENT(IN)    ::               p_top
+
+
+!  LOCAL  VAR
+
+   REAL,       DIMENSION( ims:ime, kms:kme, jms:jme ) ::v_phytmp
+   REAL,       DIMENSION( ims:ime, kms:kme, jms:jme ) ::u_phytmp
+
+   REAL,       DIMENSION( ims:ime, jms:jme )          ::  TSKOLD, &
+                                                          USTOLD, &
+                                                          ZNTOLD, &
+                                                             ZOL, &
+                                                            PSFC
+!
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::a_u        ! Implicit component for the momemtum in X-direction
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::a_v        ! Implicit component for the momemtum in Y-direction
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::a_t        ! Implicit component for the Pot. Temp.
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::a_q        ! Implicit component for the water vapor
+
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::b_u        ! Explicit component for the momemtum in X-direction
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::b_v        ! Explicit component for the momemtum in Y-direction
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::b_t        ! Explicit component for the Pot. Temp.
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::b_q        ! Explicit component for the water vapor
+
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )::sf           ! surfaces
+   REAL, DIMENSION( ims:ime, kms:kme, jms:jme )  ::vl            ! volumes
+   REAL    :: DTMIN,DTBL
+!
+
+   INTEGER :: initflag
+!
+
+
+
+   INTEGER :: i,J,K,NK,jj,ij,its,ite,jts,jte
+   LOGICAL :: radiation
+   LOGICAL :: flag_bep
+   LOGICAL :: flag_myjsfc
+   LOGICAL :: flag_qv, flag_qc, flag_qr, flag_qi, flag_qs, flag_qg
+   CHARACTER*256 :: message
+   REAL    :: next_bl_time
+   LOGICAL :: run_param
+   LOGICAL :: do_adapt
+   integer iu_bep,iurb,idiff
+   real seamask,thsk,zzz,unew,vnew,tnew,qnew,umom,vmom
+
+!SW==
+! shear variables
+real, intent(in) :: shear_relax_tscale
+real, dimension(kms:kme), intent(out) :: shear_u_profile ! local variable
+real, intent(in) :: shear_u_top, shear_u_sfc, shear_depth, shear_bot
+integer, intent(in) :: shear_opt
+   REAL, DIMENSION( kms:kme),                 &
+          INTENT(INOUT) ::  rqvwtgten, rthwtgten
+
+    real, dimension(kms:kme), INTENT(INOUT) ::                  &
+                      the_wtg_forcing, qv_wtg_forcing,  qv_wtg_hadv_forcing
+    real ::  no_points, th_temp, uuu_sum, vvv_sum
+    real ::  dth_sum, rho_sum, qv_sum, phalf_sum, pfull_sum, z_sum, mu_sum, mu_avg
+
+    integer :: irnc, jrnc
+    integer :: k_abovepbl_first
+    real    :: pblh_max, pblh_sum, pblh_domain
+    integer, INTENT(IN) :: rce_wtg_flag, rce_wtg_diag, qv_hadv_flag 
+    integer,optional,INTENT(IN) ::  pblh_opt, relax_umean_opt
+    real,optional,INTENT(IN) ::   relax_umean_u, relax_umean_tscale
+    integer :: wtg_adv_opt
+    real, DIMENSION( ims:ime , jms:jme ) :: th_2d,rho_2d, qv_2d, z_2d, pfull_2d, phalf_2d
+
+    real, DIMENSION( ims:ime , jms:jme ) :: thetaint_tmp,qvint_tmp, qvhadvint_tmp 
+    real, DIMENSION( kms:kme) :: th_avg, rho_avg, qv_avg, z_avg
+    real, DIMENSION( kms:kme),INTENT(IN) :: qv_rce,th_rce
+    real, DIMENSION( kms:kme) :: uuu_avg, vvv_avg
+    real, DIMENSION( kms:kme) :: w_wtg, omega_wtg
+    real, DIMENSION( kms:kme) :: dthdeta, dqvdeta, qtend, qtend_qvhadv, qtend_avg, ttend
+    real ::  qtend1, qtend2, domgdeta
+    real :: theta_v_prime
+
+    real :: omega_p, omega_n
+    integer ::  upwind_opt
+    real :: tao_time 
+    CHARACTER*1024     :: outstring
+    CHARACTER*1024     :: wrf_err_message
+
+
+    ! reference potential temperature profiles 
+    integer, intent(in) :: nl_bg
+    integer, intent(in) :: wavecoupling_opt
+    real, intent(in) :: wave_ztop
+    real, intent(in) :: wavedamping, wavenumber
+    real, DIMENSION( nl_bg), intent(in) :: theta_bg, qv_bg, z_bg
+
+     ! local variables for wave coupling
+    real, DIMENSION( kms:kme) :: dp, rhs, aa, bb, cc
+    real, DIMENSION( kms:kme) :: phalf_avg, pfull_avg
+    real, DIMENSION( 1:kde) :: theta_bg_int, qv_bg_int
+    real, DIMENSION( 1:kde) :: th_v_avg
+    integer :: np
+    integer :: k2
+
+    ! options for moisture advection
+    integer,intent(in) :: qv_avg_flag
+    integer,intent(in) :: qadv_flag, qadv_popt
+    real,intent(in) :: qadv_tau, qadv_plev_up, qadv_plev_dn
+    real,intent(in) :: qforcing_tau
+    real, DIMENSION( kms:kme) :: qtend_qadv
+
+    real :: cpm, evapor,rho_d,coef_tmp
+ 
+   END SUBROUTINE wtg_driver0
+
+! ----------------------------------------------------------------------------------------------
+! ----------------------------------------------------------------------------------------------
+
+
+END MODULE module_wtg_driver0

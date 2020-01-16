@@ -1,0 +1,45 @@
+module_big_step_utilities_em.f90:2596:                        xlat, fzm, fzp, rdx, rdy, &
+module_big_step_utilities_em.f90:2622:                                                                xlat
+module_big_step_utilities_em.f90:2703:                                    rv(i-1,k,j)+rv(i,k,j))*tan(xlat(i,j)*degrad) &
+module_big_step_utilities_em.f90:2731:                        tan((xlat(i,j)+xlat(i,j-1))*0.5*degrad)* &
+module_em.f90:1481:                            xlong,xlat, &
+module_em.f90:1504:                                        INTENT(IN ) ::xlong, xlat
+module_em.f90:1692:   REAL :: ts_rx, ts_ry, ts_xlat, ts_xlong, ts_hgt
+module_em.f90:1717:         known_lat = grid%xlat(1,1)
+module_first_rk_step_part1.f90:229:     & ,XLAT=grid%xlat, XLONG=grid%xlong, GMT=grid%gmt &
+module_first_rk_step_part1.f90:256:&SK=grid%tsk,VEGFRA=grid%vegfra,WARM_RAIN=grid%warm_rain,XICE=grid%xice,XLAND=grid%xland,XLAT=grid%xlat,XLONG=grid%xlong,YR=yr,ALSW&
+module_first_rk_step_part1.f90:348:&slope,SLP_AZI=grid%slp_azi,SWNORM=grid%swnorm,DECLIN=grid%declin,SOLCON=grid%solcon,COSZEN=grid%coszen,HRANG=grid%hrang,xlat_urb2d&
+module_first_rk_step_part1.f90:349:&=grid%XLAT,NUM_ROOF_LAYERS=num_roof_layers,NUM_WALL_LAYERS=num_wall_layers,NUM_ROAD_LAYERS=num_road_layers,DZR=grid%dzr,DZB=grid%d&
+module_first_rk_step_part1.f90:360:&RB2D=grid%hgt_urb2d,MH_URB2D=grid%mh_urb2d,STDH_URB2D=grid%stdh_urb2d,LF_URB2D=grid%lf_urb2d,GMT=grid%gmt,XLAT=grid%xlat,XLONG=gri&
+module_first_rk_step_part1.f90:438:&rid%phb,XLAT_U=grid%xlat_u,XLONG_U=grid%xlong_u,Z_AT_W=grid%z_at_w,CLDFRA_OLD_MP=grid%cldfra_old_mp,CLDFRA=grid%cldfra,RTHRATENLW=&
+module_first_rk_step_part1.f90:441:&ms,kms,jms,P_QNI),F_QNI=f_qni,RQNIBLTEN=grid%rqniblten,XLAT_V=grid%xlat_v,XLONG_V=grid%xlong_v,FNM=grid%fnm,FNP=grid%fnp,IS_CAMMGM&
+module_initialize_scm_xy.f90:192:         grid%xlat(i,j) = config_flags%scm_lat
+module_initialize_scm_xy.f90:194:         grid%clat(i,j) = grid%xlat(i,j)
+module_initialize_scm_xy.f90:195:         grid%xlat_u(i,j) = grid%xlat(i,j)
+module_initialize_scm_xy.f90:197:         grid%xlat_v(i,j) = grid%xlat(i,j)
+module_polarfft.f90:428:SUBROUTINE polar_filter_3d( f, xlat, piggyback, fft_filter_lat, dvlat, &
+module_polarfft.f90:439:  REAL , DIMENSION( ims:ime , jms:jme ) , INTENT(IN) :: xlat
+module_polarfft.f90:461:     lat = xlat(ids,j)-dvlat
+module_wps_io_arw.f90:1166:    varName='XLAT_U'
+module_wps_io_arw.f90:1173:           grid%xlat_u(I,J)=dumdata_u(I,J,1)
+module_wps_io_arw.f90:1188:    varName='XLAT_V'
+module_wps_io_arw.f90:1195:           grid%xlat_v(I,J)=dumdata_v(I,J,1)
+module_wps_io_arw.f90:1211:	write(0,*) 'reading XLAT_M'
+module_wps_io_arw.f90:1212:    varName='XLAT_M'
+module_wps_io_arw.f90:1220:           grid%xlat_gc(I,J)=dumdata(I,J,1)
+module_wps_io_arw.f90:1223:	write(0,*) 'xlat_gc defined'
+nest_init_utils.f90:303:   REAL , DIMENSION(ids:ide,jds:jde) :: ht_g, xlat_g, xlon_g
+nest_init_utils.f90:315:   CALL wrf_patch_to_global_real ( grid%xlat , xlat_g , grid%domdesc, ' ' , 'xy' , &
+nest_init_utils.f90:325:     CALL get_terrain ( grid%dx/1000., xlat_g(ids:ide,jds:jde), xlon_g(ids:ide,jds:jde), ht_g(ids:ide,jds:jde), &
+solve_em.f90:2569:                            grid%xlong,grid%xlat, &
+solve_em.f90:2878:            grid%xlat, grid%xlong, grid%xland, grid%ht, &
+start_em.f90:288:            lat1 = grid%xlat (iloc,jloc)
+start_em.f90:304:            lat1 = grid%xlat (iloc,jloc)
+start_em.f90:317:            lat2 = grid%xlat (iloc,jloc)
+start_em.f90:334:            lat1 = grid%xlat (iloc,jloc)
+start_em.f90:347:            lat2 = grid%xlat (iloc,jloc)
+start_em.f90:364:            lat1 = grid%xlat (iloc,jloc)
+start_em.f90:377:            lat2 = grid%xlat (iloc,jloc)
+start_em.f90:390:            lat3 = grid%xlat (iloc,jloc)
+start_em.f90:403:            lat4 = grid%xlat (iloc,jloc)
+start_em.f90:786:                      grid%xlat,grid%xlong,grid%albedo,grid%albbck,grid%GMT,grid%JULYR,grid%JULDAY,     &

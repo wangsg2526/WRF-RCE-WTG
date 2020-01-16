@@ -1,0 +1,217 @@
+ &time_control
+ run_days                            = 600,
+ run_hours                           = 0,
+ run_minutes                         = 0,
+ run_seconds                         = 0,
+ start_year                          = 2011, 0001, 0001,
+ start_month                         = 02,   12,   01,
+ start_day                           = 01,   30,   01,
+ start_hour                          = 00,   00,   00,
+ start_minute                        = 00,   00,   00,
+ start_second                        = 00,   00,   00,
+ end_year                            = 2012, 0001, 0001,
+ end_month                           = 03,   01,   01,
+ end_day                             = 1,   14,   01,
+ end_hour                            = 00,   00,   00,
+ end_minute                          = 00,   01,  120,
+ end_second                          = 00,   00,   00,
+ history_interval                    = 60,  720,   10,
+ adjust_output_times                 = T
+ frames_per_outfile                  = 1000, 1, 1000,
+ restart                             = F 
+ restart_interval                    = 10800
+ io_form_history                     = 2
+ io_form_restart                     = 2
+ io_form_input                       = 2
+ io_form_boundary                    = 2
+! auxinput3_inname                    = "dyno_force.nc"                                    ! netcdf file for input of largescale forcing data
+! auxinput3_interval_h                = 600000                                             ! reading frequency of forcing (hours)
+! io_form_auxinput3                   = 2     
+! auxinput4_inname                    = "dyna_force_sst_aug13_256.nc"                      ! netcdf file for SST (need to match the dimension of the model, this awkward now)
+! auxinput4_interval_h                = 6
+! io_form_auxinput4                   = 2
+ debug_level                         = 0
+ diag_print =  0
+ iofields_filename = "myoutfields.txt",
+ /
+
+ &domains
+ time_step                           = 10,
+ time_step_fract_num                 = 0,
+ time_step_fract_den                 = 1,
+ max_dom                             = 1,
+ s_we                                = 1,
+ e_we                                = 32,
+ s_sn                                = 1,
+ e_sn                                = 32,
+ s_vert                              = 1,
+ e_vert                              = 60,
+ dx                                  = 2000,
+ dy                                  = 2000,
+ ztop                                = 23000.,
+ use_adaptive_time_step              = T 
+ target_cfl                          = 0.8
+ eta_levels = 1.000000, 0.994228, 0.986939, 0.978157, 0.967910, 0.956235,
+0.943174, 0.928777, 0.913102, 0.896208, 0.878164, 0.859035,
+0.838897, 0.817824, 0.795897, 0.773198, 0.749809, 0.725809,
+0.701279, 0.676299, 0.650948, 0.625307, 0.599460, 0.573489,
+0.547482, 0.521524, 0.495693, 0.470061, 0.444693, 0.419654,
+0.395003, 0.370796, 0.347080, 0.323897, 0.301287, 0.279287,
+0.257933, 0.237256, 0.217286, 0.198058, 0.179602, 0.161950,
+0.145134, 0.129183, 0.114135, 0.100044, 0.086966, 0.074995,
+0.064219, 0.054609, 0.046090, 0.038432, 0.031494, 0.025279,
+0.019727, 0.014779, 0.010382, 0.006485, 0.003039, 0.000000,
+ /
+
+&hs_control
+hs_lw_type=103                           ! options for idealized radiative heating in the troposphere  (LW), also set ra_lw_physics = 31
+hs_sw_type=103                           ! options for idealized radiative heating in the stratosphere (SW), also set ra_lw_physics = 32
+ssttsk = 301.15,                         ! surface temperature (K) in the initial condition (wrfinput_d01) 
+/
+
+&rce_control
+ rce_wtg_flag = 1                        ! 1: WTG; 2: DGW; 3: vertical mode based WTG; 4: spectral WTG
+ wtg_opt = 1                             ! options of WTG, used for real cases with time-dependent forcing, not used for cases with time-independent forcing 
+ wadv_opt = 0                            ! options of vertical advection by WTG velocity (default 0, no need to change it) 
+ rce_wtg_diag = 0                        ! flag to print some diagnostic information 
+ pre_rad_flag = T                        ! prescribed radiation
+ pre_solconst = 0                        ! no use now
+ pre_julian = 60                         ! prescribed Julian day
+ vcord_opt = 1                           ! whether to use eta levels specificed in eta_levels
+ tao = 120                               ! time scales for WTG, in minutes
+ wtg_nmodes = 20                         ! number of vertical modes
+ pblh_opt = 90000                        ! nominial pbl height for WTG (Pa)
+ wavecoupling_topbc = 10000              ! height of top boundary; rce_wtg_flag = 1,2: unit in Pa; rce_wtg_flag = 3,4, unit in meter
+ qv_lateral_drawing_flag = T             ! flag to switch on lateral entrainment (default value: True)
+ relax_umean_opt = 1                     ! 1: switch on nudging of the domain mean horizontal winds (u and v); 0: off
+ relax_umean_u = 6.0                     ! target domain mean horizontal wind u (m/s)
+ relax_umean_tscale = 60                 ! time scale (minutes) for wind nudging
+ wavecoupling_opt = 1                    ! wavecoupling options (not use here)   
+ wavenumber = 1e-6                       ! wave number for DGW (m-1)
+ wavecoupling_dmpopt = 1                 ! momentum damping option (1:, uniform damping; 2: scale with pressure)      
+ wavedamping = 1.1574e-5                 ! momentum damping in DGW (s-1)
+ nl_bg= 50                               ! # of vertical levels of target profile
+ theta_bg=                               ! potential temperature (K) for target profile 
+ 298.2800,  299.3700,  300.2755,  301.0200,  301.7000,  302.3900,  303.0500,  303.7000,
+ 304.4100,  305.1606,  306.3500,  308.5800,  310.9968,  312.9500,  314.7300,  316.8666,
+ 318.9941,  321.1417,  323.0600,  325.2489,  326.7400,  327.9800,  328.9600,  329.9100,
+ 330.7195,  331.1100,  331.3800,  331.5700,  331.6600,  331.8500,  332.1500,  332.8993,
+ 333.7000,  334.7769,  337.2265,  340.8553,  346.8968,  356.4606,  368.4993,  382.4646,
+ 397.0635,  412.1751,  426.9742,  439.7308,  452.8598,  466.5320,  480.7785,  495.3391,
+ 509.3030,  523.8143,                      
+ qv_bg=                                   ! water vapor mixing ratio (g/kg) for target profile
+  17.4110000,   16.7846431,   15.9227879,   15.1493487,   14.4050643,   13.6095649,   12.9681700,   12.4278583,
+  11.9401153,   11.3678706,   10.5140000,    9.2814617,    8.0511809,    6.9231748,    6.1131117,    5.4837732,
+   4.5137474,    3.6909433,    3.0017759,    2.1590661,    1.6029689,    1.2676322,    0.9719636,    0.6542102,
+   0.4071455,    0.2627648,    0.1630326,    0.1007296,    0.0565391,    0.0304184,    0.0134022,    0.0024401,
+   0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,
+   0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,    0.0001000,
+   0.0001000,    0.0001000, 
+ prs_bg=                                  ! pressure (Pa) for target profile
+100000.0000000, 97638.2156414, 95324.4696818, 93056.7435797, 90833.5477583, 88653.9123682, 86517.2333178, 84422.8610499,
+82370.3843494, 80359.3530700, 77516.2961821, 72590.9345301, 67933.1641508, 63528.4551483, 59361.5119884, 55423.3615543,
+51705.9213323, 48198.3131193, 44889.4356848, 41771.1073022, 38831.8756155, 36059.4353988, 33445.1449062, 30981.1525045,
+28660.4887178, 26475.3739078, 24418.3000813, 22483.8293644, 20666.2631142, 18960.9704499, 17363.5047022, 15870.7220676,
+14478.7285041, 13183.1408533, 11981.7526757, 10872.9482651, 9856.1762565, 8931.6145580, 8097.9042568, 7349.7132654,
+6678.6030349, 6077.1674047, 5535.7180978, 5046.7562932, 4603.3393117, 4201.1527700, 3836.3973218, 3505.6012263,
+3204.9430585, 2931.3131874, 
+ z_bg=                                    ! height (meter) of target profile  
+   0.0000000,  210.5263158,  421.0526316,  631.5789474,  842.1052632, 1052.6315789, 1263.1578947, 1473.6842105,
+1684.2105263, 1894.7368421, 2200.0000000, 2751.8987342, 3303.7974684, 3855.6962025, 4407.5949367, 4959.4936709,
+5511.3924051, 6063.2911392, 6615.1898734, 7167.0886076, 7718.9873418, 8270.8860759, 8822.7848101, 9374.6835443,
+9926.5822785, 10478.4810127, 11030.3797468, 11582.2784810, 12134.1772152, 12686.0759494, 13237.9746835, 13789.8734177,
+14341.7721519, 14893.6708861, 15445.5696203, 15997.4683544, 16549.3670886, 17101.2658228, 17653.1645570, 18205.0632911,
+18756.9620253, 19308.8607595, 19860.7594937, 20412.6582278, 20964.5569620, 21516.4556962, 22068.3544304, 22620.2531646,
+23172.1518987, 23724.0506329, 
+/
+
+
+ &scm
+ scm_force                           = 0           ! used for time varying forcing
+ num_force_layers                    = 40          ! # number of vertical levels in forcing
+ scm_lat                             = -3.00       ! latitude used in shortwave radiation                   - also need to set this for rce/wtg case with time-indepdent target forcing
+ scm_lon                             = 300.00      ! longitude used in shortwave radiation                  - ---------------------------------
+ scm_vert_adv                      = F             ! imposed large scale dynamics (conventional method)
+ scm_qv_relax_largescale           = F             ! T: relax moisture 
+ scm_qv_relax_height               = 0.0           ! height above which moisture relaxition is applied
+ scm_th_relax_largescale           = F             ! T: relax potential temperature
+ scm_th_relax_height               = 100000        ! height above which potential temperature relaxition is applied
+ scm_force_radiation               = F             ! T: use precribed radiative heating
+ scm_th_hadv_largescale            = F             ! T: use horizontal advection of temperature (also set ra_lw_physics and ra_sw_physics to 0)
+ scm_qv_hadv_largescale            = F             ! T: use horizontal advection of moisture
+ scm_force_wtg                 = F    !wtg         ! T: use WTG (wtg_opt = 1, conventional WTG; 210: vertical mode based WTG)
+ scm_vert_adv_opt                  = 800           ! options for vertical advection   
+ scm_force_wave                = F    !wave        ! 1: turn on DGW  
+ scm_force_wind_largescale           = F           ! T: turn on wind nudging to observed winds
+/
+
+
+
+ &physics
+ mp_physics                          = 2 
+ ra_lw_physics                       = 3,
+ ra_sw_physics                       = 3,
+ swint_opt                           = 1
+ levsiz  = 59
+ paerlev = 29
+ cam_abs_dim1 = 4
+ cam_abs_dim2 = 60
+ co2tf = 1, 
+ radt                                = 2,
+ sf_sfclay_physics                   = 1 
+ sf_surface_physics                  = 2,
+ bl_pbl_physics                      = 1,
+ bldt                                = 0,
+ cu_physics                          = 0,
+ cudt                                = 0,
+ isfflx                              = 1,
+ ifsnow                              = 0,
+ icloud                              = 1,
+ num_soil_layers                     = 4,
+ mp_zero_out                         = 0,
+ sst_update                          = 0,
+ sst_skin   = 0 
+do_radar_ref                        = 0 
+/
+
+ &dynamics
+ rk_ord                              = 3,
+ diff_opt                            = 2,
+ km_opt                              = 4,
+ damp_opt                            = 3,
+ dampcoef                            = 0.05,
+ zdamp                               = 6000.,
+ khdif                               = 300,
+ kvdif                               = 1,
+ smdiv                               = 0.1,
+ emdiv                               = 0.01,
+ epssm                               = 0.1,
+ time_step_sound                     = 6,
+ h_mom_adv_order                     = 5,
+ v_mom_adv_order                     = 3,
+ h_sca_adv_order                     = 5,
+ v_sca_adv_order                     = 3,
+ moist_adv_opt                       = 1,      
+ scalar_adv_opt                      = 1,  
+ pert_coriolis                       = .false.,
+ mix_full_fields                     = .true.,
+ non_hydrostatic                     = .true.,
+ /
+
+ &bdy_control
+ periodic_x                          = .true.,
+ symmetric_xs                        = .false.,
+ symmetric_xe                        = .false.,
+ open_xs                             = .false., 
+ open_xe                             = .false.,
+ periodic_y                          = .true.,
+ symmetric_ys                        = .false.,
+ symmetric_ye                        = .false.,
+ open_ys                             = .false.,
+ open_ye                             = .false.,
+ /
+
+ &namelist_quilt
+ nio_tasks_per_group = 0,
+ nio_groups = 1,
+ /
